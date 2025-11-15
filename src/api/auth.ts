@@ -3,12 +3,12 @@ import { ApiResponse, LoginRequest, LoginResponse, RegisterRequest, User } from 
 
 // 用户注册
 export const register = (data: RegisterRequest) => {
-  return request.post<ApiResponse<User>>('/auth/register', data);
+  return request.post<ApiResponse<User>>('/user', data);
 };
 
 // 用户登录
 export const login = (data: LoginRequest) => {
-  return request.post<ApiResponse<LoginResponse>>('/auth/login', data);
+  return request.post<ApiResponse<LoginResponse>>('/token', data);
 };
 
 // 检查用户名

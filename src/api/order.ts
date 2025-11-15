@@ -13,7 +13,7 @@ export const getUserOrders = (params?: OrderQueryParams) => {
 
 // 获取所有订单（管理员）
 export const getAllOrders = (params?: OrderQueryParams) => {
-  return request.get<ApiResponse<PageResponse<Order>>>('/orders/admin/all', { params });
+  return request.get<ApiResponse<PageResponse<Order>>>('/admin/orders', { params });
 };
 
 // 获取订单详情
