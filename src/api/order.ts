@@ -27,22 +27,54 @@ export const getOrderItems = (id: number) => {
 };
 
 // 支付订单
-export const payOrder = (id: number) => {
-  return request.put<ApiResponse<null>>(`/orders/${id}/pay`);
+export const payOrder = async (id: number) => {
+  try {
+    console.log('Sending payOrder request for id:', id);
+    const response = await request.patch<ApiResponse<null>>(`/orders/${id}`, { status: 'PAID' });
+    console.log('payOrder response:', response);
+    return response;
+  } catch (error: any) {
+    console.error('payOrder error:', error.response?.data || error.message || error);
+    throw error;
+  }
 };
 
 // 发货订单（管理员）
-export const shipOrder = (id: number) => {
-  return request.put<ApiResponse<null>>(`/orders/${id}/ship`);
+export const shipOrder = async (id: number) => {
+  try {
+    console.log('Sending shipOrder request for id:', id);
+    const response = await request.patch<ApiResponse<null>>(`/orders/${id}`, { status: 'SHIPPED' });
+    console.log('shipOrder response:', response);
+    return response;
+  } catch (error: any) {
+    console.error('shipOrder error:', error.response?.data || error.message || error);
+    throw error;
+  }
 };
 
 // 完成订单
-export const completeOrder = (id: number) => {
-  return request.put<ApiResponse<null>>(`/orders/${id}/complete`);
+export const completeOrder = async (id: number) => {
+  try {
+    console.log('Sending completeOrder request for id:', id);
+    const response = await request.patch<ApiResponse<null>>(`/orders/${id}`, { status: 'COMPLETED' });
+    console.log('completeOrder response:', response);
+    return response;
+  } catch (error: any) {
+    console.error('completeOrder error:', error.response?.data || error.message || error);
+    throw error;
+  }
 };
 
 // 取消订单
-export const cancelOrder = (id: number) => {
-  return request.put<ApiResponse<null>>(`/orders/${id}/cancel`);
+export const cancelOrder = async (id: number) => {
+  try {
+    console.log('Sending cancelOrder request for id:', id);
+    const response = await request.patch<ApiResponse<null>>(`/orders/${id}`, { status: 'CANCELLED' });
+    console.log('cancelOrder response:', response);
+    return response;
+  } catch (error: any) {
+    console.error('cancelOrder error:', error.response?.data || error.message || error);
+    throw error;
+  }
 };
 

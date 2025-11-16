@@ -218,15 +218,61 @@ ApiResponse<OrderItem[]> {
 }
 ```
 
-### 3.6 支付订单
+### 3.6 更新订单状态
+
+**前端函数名**：`updateOrderStatus`
+
+**HTTP方法**：`PATCH`
+
+**接口路径**：`/orders/{id}`
+
+**功能描述**：统一的订单状态更新接口，用于更新订单的状态。
+
+**路径参数**：
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| id | number | 是 | 订单ID |
+
+**请求体参数**：
+```typescript
+interface UpdateOrderStatusRequest {
+  status: 'PENDING_PAYMENT' | 'CANCELLED' | 'SHIPPED' | 'PAID' | 'COMPLETED'; // 订单状态
+  remark?: string; // 操作备注（可选）
+}
+```
+
+**请求示例**：
+```typescript
+const orderId = 123;
+const response = await updateOrderStatus(orderId, {
+  status: 'PAID',
+  remark: '支付成功'
+});
+```
+
+**响应格式**：
+```typescript
+ApiResponse<null> {
+  code: number;
+  message: string;
+  data: null;
+}
+```
+
+**业务逻辑**：
+- 根据传入的status值更新订单状态
+- 部分状态更新需要特定权限（如`PENDING_PAYMENT`和`SHIPPED`仅管理员可用）
+- 订单状态变更受业务规则限制，不能随意跳转
+
+### 3.7 支付订单（兼容旧接口）
 
 **前端函数名**：`payOrder`
 
-**HTTP方法**：`PUT`
+**HTTP方法**：`PATCH` (内部调用)
 
-**接口路径**：`/orders/{id}/pay`
+**接口路径**：`/orders/{id}` (内部使用)
 
-**功能描述**：支付指定的订单。
+**功能描述**：支付指定的订单（内部调用updateOrderStatus）。
 
 **路径参数**：
 | 参数名 | 类型 | 必填 | 说明 |
@@ -250,20 +296,18 @@ ApiResponse<null> {
 
 **业务逻辑**：
 - 只有状态为`PENDING_PAYMENT`（待支付）的订单可以进行支付操作
-- 支付成功后，订单状态变为`PAID`（已支付）
+- 支付后，订单状态变为`PAID`（已支付）
 - 支付时间会被记录在`paymentTime`字段
 
-### 3.7 发货订单（管理员）
+### 3.8 发货订单（兼容旧接口）
 
 **前端函数名**：`shipOrder`
 
-**HTTP方法**：`PUT`
+**HTTP方法**：`PATCH` (内部调用)
 
-**接口路径**：`/orders/{id}/ship`
+**接口路径**：`/orders/{id}` (内部使用)
 
-**功能描述**：管理员对已支付的订单进行发货操作。
-
-**权限要求**：管理员权限
+**功能描述**：发货指定的订单（仅管理员可用，内部调用updateOrderStatus）。
 
 **路径参数**：
 | 参数名 | 类型 | 必填 | 说明 |
@@ -287,18 +331,19 @@ ApiResponse<null> {
 
 **业务逻辑**：
 - 只有状态为`PAID`（已支付）的订单可以进行发货操作
-- 发货成功后，订单状态变为`SHIPPED`（已发货）
+- 发货后，订单状态变为`SHIPPED`（已发货）
 - 发货时间会被记录在`shippingTime`字段
+- 该接口需要管理员权限
 
-### 3.8 完成订单
+### 3.9 完成订单（兼容旧接口）
 
 **前端函数名**：`completeOrder`
 
-**HTTP方法**：`PUT`
+**HTTP方法**：`PATCH` (内部调用)
 
-**接口路径**：`/orders/{id}/complete`
+**接口路径**：`/orders/{id}` (内部使用)
 
-**功能描述**：将已发货的订单标记为完成状态。
+**功能描述**：完成指定的订单（内部调用updateOrderStatus）。
 
 **路径参数**：
 | 参数名 | 类型 | 必填 | 说明 |
@@ -325,15 +370,15 @@ ApiResponse<null> {
 - 完成后，订单状态变为`COMPLETED`（已完成）
 - 完成时间会被记录在`completedTime`字段
 
-### 3.9 取消订单
+### 3.10 取消订单（兼容旧接口）
 
 **前端函数名**：`cancelOrder`
 
-**HTTP方法**：`PUT`
+**HTTP方法**：`PATCH` (内部调用)
 
-**接口路径**：`/orders/{id}/cancel`
+**接口路径**：`/orders/{id}` (内部使用)
 
-**功能描述**：取消指定的订单。
+**功能描述**：取消指定的订单（内部调用updateOrderStatus）。
 
 **路径参数**：
 | 参数名 | 类型 | 必填 | 说明 |

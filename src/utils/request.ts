@@ -20,9 +20,12 @@ request.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 从localStorage获取token
     const token = localStorage.getItem('token');
+    console.log('LocalStorage Token:', token);
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log('Request Headers:', config.headers);
+    console.log('Request URL:', config.url);
     return config;
   },
   (error: AxiosError) => {
