@@ -23,9 +23,7 @@ const AdminProductForm = () => {
   const fetchProduct = async () => {
     try {
       const response = await getProductById(Number(id));
-      if (response.data.code === 200) {
-        form.setFieldsValue(response.data.data);
-      }
+      form.setFieldsValue(response.data);
     } catch (error: any) {
       message.error(error.message || '获取商品信息失败');
     }
@@ -35,17 +33,13 @@ const AdminProductForm = () => {
     setSubmitting(true);
     try {
       if (isEdit && id) {
-        const response = await updateProduct(Number(id), values);
-        if (response.data.code === 200) {
-          message.success('更新成功');
-          navigate('/admin/products');
-        }
+        await updateProduct(Number(id), values);
+        message.success('更新成功');
+        navigate('/admin/products');
       } else {
-        const response = await createProduct(values);
-        if (response.data.code === 200) {
-          message.success('创建成功');
-          navigate('/admin/products');
-        }
+        await createProduct(values);
+        message.success('创建成功');
+        navigate('/admin/products');
       }
     } catch (error: any) {
       message.error(error.message || '操作失败');

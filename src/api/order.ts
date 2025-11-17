@@ -1,36 +1,36 @@
 import request from '@/utils/request';
-import { ApiResponse, Order, OrderItem, CreateOrderRequest, OrderQueryParams, PageResponse } from '@/types';
+import { Order, OrderItem, CreateOrderRequest, OrderQueryParams, PageResponse } from '@/types';
 
 // 创建订单
 export const createOrder = (data: CreateOrderRequest) => {
-  return request.post<ApiResponse<Order>>('/orders', data);
+  return request.post<Order>('/orders', data);
 };
 
 // 获取用户订单列表（后端通过权限控制自动识别用户）
 export const getUserOrders = (params?: OrderQueryParams) => {
-  return request.get<ApiResponse<PageResponse<Order>>>('/orders', { params });
+  return request.get<PageResponse<Order>>('/orders', { params });
 };
 
 // 获取所有订单（管理员）
 export const getAllOrders = (params?: OrderQueryParams) => {
-  return request.get<ApiResponse<PageResponse<Order>>>('/admin/orders', { params });
+  return request.get<PageResponse<Order>>('/admin/orders', { params });
 };
 
 // 获取订单详情
 export const getOrderById = (id: number) => {
-  return request.get<ApiResponse<Order>>(`/orders/${id}`);
+  return request.get<Order>(`/orders/${id}`);
 };
 
 // 获取订单项列表
 export const getOrderItems = (id: number) => {
-  return request.get<ApiResponse<OrderItem[]>>(`/orders/${id}/items`);
+  return request.get<OrderItem[]>(`/orders/${id}/items`);
 };
 
 // 支付订单
 export const payOrder = async (id: number) => {
   try {
     console.log('Sending payOrder request for id:', id);
-    const response = await request.patch<ApiResponse<null>>(`/orders/${id}`, { status: 'PAID' });
+    const response = await request.patch<void>(`/orders/${id}`, { status: 'PAID' });
     console.log('payOrder response:', response);
     return response;
   } catch (error: any) {
@@ -43,7 +43,7 @@ export const payOrder = async (id: number) => {
 export const shipOrder = async (id: number) => {
   try {
     console.log('Sending shipOrder request for id:', id);
-    const response = await request.patch<ApiResponse<null>>(`/orders/${id}`, { status: 'SHIPPED' });
+    const response = await request.patch<void>(`/orders/${id}`, { status: 'SHIPPED' });
     console.log('shipOrder response:', response);
     return response;
   } catch (error: any) {
@@ -56,7 +56,7 @@ export const shipOrder = async (id: number) => {
 export const completeOrder = async (id: number) => {
   try {
     console.log('Sending completeOrder request for id:', id);
-    const response = await request.patch<ApiResponse<null>>(`/orders/${id}`, { status: 'COMPLETED' });
+    const response = await request.patch<void>(`/orders/${id}`, { status: 'COMPLETED' });
     console.log('completeOrder response:', response);
     return response;
   } catch (error: any) {
@@ -69,7 +69,7 @@ export const completeOrder = async (id: number) => {
 export const cancelOrder = async (id: number) => {
   try {
     console.log('Sending cancelOrder request for id:', id);
-    const response = await request.patch<ApiResponse<null>>(`/orders/${id}`, { status: 'CANCELLED' });
+    const response = await request.patch<void>(`/orders/${id}`, { status: 'CANCELLED' });
     console.log('cancelOrder response:', response);
     return response;
   } catch (error: any) {

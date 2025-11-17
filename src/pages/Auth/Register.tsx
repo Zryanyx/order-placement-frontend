@@ -53,10 +53,8 @@ const Register = () => {
       console.log('发送注册请求的数据:', registerData);
       const response = await register(registerData);
       console.log('注册请求响应:', response);
-      if (response.data.code === 200) {
-        message.success('注册成功，请登录');
-        navigate('/login');
-      }
+      message.success('注册成功，请登录');
+      navigate('/login');
     } catch (error: any) {
       console.error('注册失败:', error);
       message.error(error.message || '注册失败');

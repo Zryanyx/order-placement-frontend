@@ -47,11 +47,9 @@ const OrderCreate = () => {
         remark: values.remark,
       });
 
-      if (response.data.code === 200) {
-        message.success('订单创建成功');
-        clearCart();
-        navigate(`/orders/${response.data.data.id}`);
-      }
+      message.success('订单创建成功');
+      clearCart();
+      navigate(`/orders/${response.data.id}`);
     } catch (error: any) {
       message.error(error.message || '创建订单失败');
     } finally {

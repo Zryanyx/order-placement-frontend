@@ -26,9 +26,7 @@ const ProductDetail = () => {
     setLoading(true);
     try {
       const response = await getProductById(Number(id));
-      if (response.data.code === 200) {
-        setProduct(response.data.data);
-      }
+      setProduct(response.data);
     } catch (error: any) {
       message.error(error.message || '获取商品详情失败');
     } finally {

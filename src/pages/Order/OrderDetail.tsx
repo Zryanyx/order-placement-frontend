@@ -29,9 +29,7 @@ const OrderDetail = () => {
     setLoading(true);
     try {
       const response = await getOrderById(Number(id));
-      if (response.data.code === 200) {
-        setOrder(response.data.data);
-      }
+      setOrder(response.data);
     } catch (error: any) {
       message.error(error.message || '获取订单详情失败');
     } finally {
@@ -42,9 +40,7 @@ const OrderDetail = () => {
   const fetchOrderItems = async () => {
     try {
       const response = await getOrderItems(Number(id));
-      if (response.data.code === 200) {
-        setItems(response.data.data);
-      }
+      setItems(response.data);
     } catch (error: any) {
       message.error(error.message || '获取订单项失败');
     }
@@ -54,11 +50,9 @@ const OrderDetail = () => {
     if (!id) return;
     setActionLoading(true);
     try {
-      const response = await payOrder(Number(id));
-      if (response.data.code === 200) {
-        message.success('支付成功');
-        fetchOrderDetail();
-      }
+      await payOrder(Number(id));
+      message.success('支付成功');
+      fetchOrderDetail();
     } catch (error: any) {
       message.error(error.message || '支付失败');
     } finally {
@@ -70,11 +64,9 @@ const OrderDetail = () => {
     if (!id) return;
     setActionLoading(true);
     try {
-      const response = await cancelOrder(Number(id));
-      if (response.data.code === 200) {
-        message.success('订单已取消');
-        fetchOrderDetail();
-      }
+      await cancelOrder(Number(id));
+      message.success('订单已取消');
+      fetchOrderDetail();
     } catch (error: any) {
       message.error(error.message || '取消订单失败');
     } finally {
@@ -86,11 +78,9 @@ const OrderDetail = () => {
     if (!id) return;
     setActionLoading(true);
     try {
-      const response = await completeOrder(Number(id));
-      if (response.data.code === 200) {
-        message.success('订单已完成');
-        fetchOrderDetail();
-      }
+      await completeOrder(Number(id));
+      message.success('订单已完成');
+      fetchOrderDetail();
     } catch (error: any) {
       message.error(error.message || '完成订单失败');
     } finally {
@@ -102,11 +92,9 @@ const OrderDetail = () => {
     if (!id) return;
     setActionLoading(true);
     try {
-      const response = await shipOrder(Number(id));
-      if (response.data.code === 200) {
-        message.success('发货成功');
-        fetchOrderDetail();
-      }
+      await shipOrder(Number(id));
+      message.success('发货成功');
+      fetchOrderDetail();
     } catch (error: any) {
       message.error(error.message || '发货失败');
     } finally {

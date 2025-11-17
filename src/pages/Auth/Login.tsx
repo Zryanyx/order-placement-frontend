@@ -14,24 +14,22 @@ const Login = () => {
     setLoading(true);
     try {
       const response = await login(values);
-      if (response.data.code === 200) {
-        const { token, username, role } = response.data.data;
-        // 创建用户对象
-        // 注意：根据API文档，登录接口不返回用户ID
-        // 我们需要设置一个临时标记，让后端从token中解析真实的userId
-        const user = {
-          id: -1, // 使用-1作为临时标记，避免使用0导致外键约束错误
-          username,
-          email: '',
-          role,
-          status: 1 as const,
-          createdTime: '',
-          updatedTime: '',
-        };
-        setAuth(token, user);
-        message.success('登录成功');
-        navigate('/products');
-      }
+      const { token, username, role } = response.data;
+      // 创建用户对象
+      // 注意：根据API文档，登录接口不返回用户ID
+      // 我们需要设置一个临时标记，让后端从token中解析真实的userId
+      const user = {
+        id: -1, // 使用-1作为临时标记，避免使用0导致外键约束错误
+        username,
+        email: '',
+        role,
+        status: 1 as const,
+        createdTime: '',
+        updatedTime: '',
+      };
+      setAuth(token, user);
+      message.success('登录成功');
+      navigate('/products');
     } catch (error: any) {
       message.error(error.message || '登录失败');
     } finally {

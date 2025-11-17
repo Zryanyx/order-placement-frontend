@@ -30,11 +30,9 @@ const AdminProductList = () => {
         keyword: keyword || undefined,
       };
       const response = await getProducts(params);
-      if (response.data.code === 200) {
-        const { records, total: totalCount } = response.data.data;
-        setProducts(records);
-        setTotal(totalCount);
-      }
+      const { records, total: totalCount } = response.data;
+      setProducts(records);
+      setTotal(totalCount);
     } catch (error: any) {
       message.error(error.message || '获取商品列表失败');
     } finally {
@@ -50,11 +48,9 @@ const AdminProductList = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const response = await deleteProduct(id);
-      if (response.data.code === 200) {
-        message.success('删除成功');
-        fetchProducts();
-      }
+      await deleteProduct(id);
+      message.success('删除成功');
+      fetchProducts();
     } catch (error: any) {
       message.error(error.message || '删除失败');
     }
@@ -62,11 +58,9 @@ const AdminProductList = () => {
 
   const handlePublish = async (id: number) => {
     try {
-      const response = await publishProduct(id);
-      if (response.data.code === 200) {
-        message.success('上架成功');
-        fetchProducts();
-      }
+      await publishProduct(id);
+      message.success('上架成功');
+      fetchProducts();
     } catch (error: any) {
       message.error(error.message || '上架失败');
     }
@@ -74,11 +68,9 @@ const AdminProductList = () => {
 
   const handleUnpublish = async (id: number) => {
     try {
-      const response = await unpublishProduct(id);
-      if (response.data.code === 200) {
-        message.success('下架成功');
-        fetchProducts();
-      }
+      await unpublishProduct(id);
+      message.success('下架成功');
+      fetchProducts();
     } catch (error: any) {
       message.error(error.message || '下架失败');
     }

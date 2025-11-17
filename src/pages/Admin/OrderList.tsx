@@ -31,11 +31,9 @@ const AdminOrderList = () => {
         status: status || undefined,
       };
       const response = await getAllOrders(params);
-      if (response.data.code === 200) {
-        const { records, total: totalCount } = response.data.data;
-        setOrders(records);
-        setTotal(totalCount);
-      }
+      const { records, total: totalCount } = response.data;
+      setOrders(records);
+      setTotal(totalCount);
     } catch (error: any) {
       message.error(error.message || '获取订单列表失败');
     } finally {

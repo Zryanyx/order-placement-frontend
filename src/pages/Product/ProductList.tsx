@@ -33,18 +33,16 @@ const ProductList = () => {
         category: category || undefined,
         ...params,
       });
-      if (response.data.code === 200) {
-        const { records, total: totalCount } = response.data.data;
-        setProducts(records);
-        setTotal(totalCount);
-        
-        // 提取所有分类
-        const allCategories = Array.from(new Set(records.map(p => p.category).filter(Boolean)));
-        setCategories(prev => {
-          const combined = Array.from(new Set([...prev, ...allCategories]));
-          return combined;
-        });
-      }
+      const { records, total: totalCount } = response.data;
+      setProducts(records);
+      setTotal(totalCount);
+      
+      // 提取所有分类
+      const allCategories = Array.from(new Set(records.map(p => p.category).filter(Boolean)));
+      setCategories(prev => {
+        const combined = Array.from(new Set([...prev, ...allCategories]));
+        return combined;
+      });
     } catch (error: any) {
       message.error(error.message || '获取商品列表失败');
     } finally {
