@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { Order, OrderItem, CreateOrderRequest, OrderQueryParams, PageResponse } from '@/types';
+import { Order, OrderItem, CreateOrderRequest, OrderQueryParams, PageResponse, OrderFullInfo } from '@/types';
 
 // 创建订单
 export const createOrder = (data: CreateOrderRequest) => {
@@ -16,14 +16,9 @@ export const getAllOrders = (params?: OrderQueryParams) => {
   return request.get<PageResponse<Order>>('/admin/orders', { params });
 };
 
-// 获取订单详情
-export const getOrderById = (id: number) => {
-  return request.get<Order>(`/orders/${id}`);
-};
-
-// 获取订单项列表
-export const getOrderItems = (id: number) => {
-  return request.get<OrderItem[]>(`/orders/${id}/items`);
+// 获取完整订单信息（包含订单详情和订单项列表）
+export const getOrderFullInfo = (id: number) => {
+  return request.get<OrderFullInfo>(`/orders/${id}`);
 };
 
 // 支付订单

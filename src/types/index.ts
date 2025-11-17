@@ -56,6 +56,14 @@ export interface OrderItem {
   updatedTime?: string;
 }
 
+// 订单完整信息（包含订单详情和订单项列表）
+export interface OrderFullInfo {
+  order: Order;
+  orderItems: OrderItem[];
+  totalItems: number;
+  totalQuantity: number;
+}
+
 // 统一响应格式（已弃用：后端已改为使用 ResponseEntity，不再使用此格式）
 // @deprecated 后端现在直接返回数据，HTTP状态码在响应头中
 export interface ApiResponse<T = any> {
