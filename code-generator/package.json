@@ -1,0 +1,34 @@
+{
+  "name": "order-frontend-code-generator",
+  "version": "1.0.0",
+  "description": "前端代码生成器 - 基于DSL配置自动生成React+TypeScript代码",
+  "main": "index.js",
+  "scripts": {
+    "generate": "node index.js",
+    "generate:config": "node index.js --config",
+    "generate:interactive": "node index.js --interactive"
+  },
+  "bin": {
+    "codegen": "./index.js"
+  },
+  "keywords": [
+    "code-generator",
+    "react",
+    "typescript",
+    "crud",
+    "dsl"
+  ],
+  "author": "KFSoft",
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "inquirer": "^8.2.6",
+    "commander": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

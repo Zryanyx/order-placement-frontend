@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Descriptions, Table, Button, Space, Tag, message, Popconfirm, Spin, Typography } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { getOrderById, getOrderItems, payOrder, cancelOrder, completeOrder, shipOrder } from '@/api/order';
+import { getOrderFullInfo, payOrder, cancelOrder, completeOrder, shipOrder } from '@/api/order';
 import { useAuthStore } from '@/store/authStore';
 import { Order, OrderItem } from '@/types';
 import dayjs from 'dayjs';
@@ -20,29 +20,20 @@ const OrderDetail = () => {
 
   useEffect(() => {
     if (id) {
-      fetchOrderDetail();
-      fetchOrderItems();
+      fetchOrderFullInfo();
     }
   }, [id]);
 
-  const fetchOrderDetail = async () => {
+  const fetchOrderFullInfo = async () => {
     setLoading(true);
     try {
-      const response = await getOrderById(Number(id));
-      setOrder(response.data);
+      const response = await getOrderFullInfo(Number(id));
+      setOrder(response.data.order);
+      setItems(response.data.orderItems);
     } catch (error: any) {
-      message.error(error.message || '获取订单详情失败');
+      message.error(error.message || '获取订单信息失败');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchOrderItems = async () => {
-    try {
-      const response = await getOrderItems(Number(id));
-      setItems(response.data);
-    } catch (error: any) {
-      message.error(error.message || '获取订单项失败');
     }
   };
 
@@ -52,7 +43,7 @@ const OrderDetail = () => {
     try {
       await payOrder(Number(id));
       message.success('支付成功');
-      fetchOrderDetail();
+      fetchOrderFullInfo();
     } catch (error: any) {
       message.error(error.message || '支付失败');
     } finally {
@@ -66,7 +57,7 @@ const OrderDetail = () => {
     try {
       await cancelOrder(Number(id));
       message.success('订单已取消');
-      fetchOrderDetail();
+      fetchOrderFullInfo();
     } catch (error: any) {
       message.error(error.message || '取消订单失败');
     } finally {
@@ -80,7 +71,7 @@ const OrderDetail = () => {
     try {
       await completeOrder(Number(id));
       message.success('订单已完成');
-      fetchOrderDetail();
+      fetchOrderFullInfo();
     } catch (error: any) {
       message.error(error.message || '完成订单失败');
     } finally {
@@ -94,7 +85,7 @@ const OrderDetail = () => {
     try {
       await shipOrder(Number(id));
       message.success('发货成功');
-      fetchOrderDetail();
+      fetchOrderFullInfo();
     } catch (error: any) {
       message.error(error.message || '发货失败');
     } finally {

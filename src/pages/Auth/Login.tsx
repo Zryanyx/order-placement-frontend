@@ -39,7 +39,7 @@ const Login = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 200px)' }}>
-      <Card title="用户登录" style={{ width: 400 }}>
+      <Card title="Java国内多商户管理系统 - 登录" style={{ width: 400 }}>
         <Form
           name="login"
           onFinish={onFinish}

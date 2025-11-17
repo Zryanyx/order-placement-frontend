@@ -7,6 +7,7 @@ import {
   LogoutOutlined,
   ShopOutlined,
   UnorderedListOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
@@ -31,13 +32,11 @@ const Layout = ({ children }: LayoutProps) => {
   const userMenuItems = [
     {
       key: 'orders',
-      icon: <UnorderedListOutlined />,
       label: '我的订单',
       onClick: () => navigate('/orders'),
     },
     {
       key: 'logout',
-      icon: <LogoutOutlined />,
       label: '退出登录',
       onClick: handleLogout,
     },
@@ -46,13 +45,11 @@ const Layout = ({ children }: LayoutProps) => {
   const adminMenuItems = [
     {
       key: 'admin-products',
-      icon: <ShopOutlined />,
       label: '商品管理',
       onClick: () => navigate('/admin/products'),
     },
     {
       key: 'admin-orders',
-      icon: <UnorderedListOutlined />,
       label: '订单管理',
       onClick: () => navigate('/admin/orders'),
     },
@@ -87,13 +84,23 @@ const Layout = ({ children }: LayoutProps) => {
             style={{ fontSize: '20px', fontWeight: 'bold', cursor: 'pointer', color: '#1890ff' }}
             onClick={() => navigate('/products')}
           >
-            订单管理系统
+            Java国内多商户管理系统
           </div>
           <Menu
             mode="horizontal"
             selectedKeys={[location.pathname]}
             items={menuItems}
-            style={{ border: 'none', flex: 1 }}
+            style={{ 
+              border: 'none', 
+              flex: 1,
+              lineHeight: '64px',
+              minWidth: 0,
+              overflow: 'visible',
+              fontSize: '14px',
+              fontWeight: 'normal'
+            }}
+            theme="light"
+            overflowedIndicator={null}
           />
         </div>
         <Space size="large">

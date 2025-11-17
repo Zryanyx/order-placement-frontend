@@ -65,7 +65,7 @@ const Register = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 200px)' }}>
-      <Card title="用户注册" style={{ width: 400 }}>
+      <Card title="Java国内多商户管理系统 - 注册" style={{ width: 400 }}>
         <Form
           form={form}
           name="register"

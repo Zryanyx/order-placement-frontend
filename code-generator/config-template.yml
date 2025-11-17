@@ -1,0 +1,145 @@
+# 前端代码生成器配置文件模板
+# 项目配置
+project:
+  name: "Java国内多商户管理系统"
+  basePath: "../src"  # 相对于生成器目录的路径
+  apis: ["GET", "LIST", "POST", "PUT", "DELETE", "PATCH"]  # 支持的API方法
+
+# 菜单配置（决定生成的模块在哪一级菜单下）
+menuLevels:
+  - key: "admin"
+    label: "管理模块"
+    level: 1
+    role: "ADMIN"
+    icon: "SettingOutlined"
+  - key: "user" 
+    label: "用户模块"
+    level: 1
+    role: "USER"
+    icon: "UserOutlined"
+  - key: "common"
+    label: "通用模块"
+    level: 1
+    role: "ALL"
+    icon: "AppstoreOutlined"
+
+# 模块配置（支持一次生成多个模块）
+modules:
+  - name: "Category"
+    comment: "商品分类"
+    directory: "pages/Admin"  # 页面所在目录
+    menuLevel: "admin"  # 菜单层级配置
+    apis: ["GET", "LIST", "POST", "PUT", "DELETE"]  # 该模块需要生成的API
+    fields:
+      - name: "id"
+        type: "number"
+        comment: "主键ID"
+        primaryKey: true
+        query:
+          enabled: false
+      - name: "name"
+        type: "string"
+        comment: "分类名称"
+        required: true
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "description"
+        type: "string"
+        comment: "分类描述"
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "status"
+        type: "number"
+        comment: "状态 0:停用,1:启用"
+        defaultValue: 1
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "createdTime"
+        type: "string"
+        comment: "创建时间"
+        query:
+          enabled: false
+      - name: "updatedTime"
+        type: "string"
+        comment: "更新时间"
+        query:
+          enabled: false
+
+  - name: "UserAddress"
+    comment: "用户地址"
+    directory: "pages/User"
+    menuLevel: "user"  # 菜单层级配置
+    apis: ["GET", "LIST", "POST", "PUT", "DELETE"]
+    fields:
+      - name: "id"
+        type: "number"
+        comment: "主键ID"
+        primaryKey: true
+        query:
+          enabled: false
+      - name: "userId"
+        type: "number"
+        comment: "用户ID"
+        required: true
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "receiverName"
+        type: "string"
+        comment: "收货人姓名"
+        required: true
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "receiverPhone"
+        type: "string"
+        comment: "收货人电话"
+        required: true
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "province"
+        type: "string"
+        comment: "省份"
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "city"
+        type: "string"
+        comment: "城市"
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "district"
+        type: "string"
+        comment: "区县"
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "detailAddress"
+        type: "string"
+        comment: "详细地址"
+        required: true
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "isDefault"
+        type: "number"
+        comment: "是否默认地址 0:否,1:是"
+        defaultValue: 0
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "createdTime"
+        type: "string"
+        comment: "创建时间"
+        query:
+          enabled: false
+      - name: "updatedTime"
+        type: "string"
+        comment: "更新时间"
+        query:
+          enabled: false
