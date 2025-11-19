@@ -1,0 +1,11 @@
+{
+  "stamp": "20251120-123455",
+  "files": [
+    "src\\router\\index.tsx",
+    "src\\components\\ThreeLevelLayout.tsx",
+    "src\\App.tsx",
+    "src\\menu-integration.tsx",
+    "src\\types\\index.ts"
+  ],
+  "created": []
+}

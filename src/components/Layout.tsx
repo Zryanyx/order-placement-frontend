@@ -3,11 +3,7 @@ import { Layout as AntLayout, Menu, Button, Badge, Dropdown, Avatar, Space } fro
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ShoppingCartOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  ShopOutlined,
-  UnorderedListOutlined,
-  AppstoreOutlined,
+  UserOutlined
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
@@ -88,8 +84,8 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
           <Menu
             mode="horizontal"
-            selectedKeys={[location.pathname]}
-            items={menuItems}
+            selectedKeys={[location.pathname] as any}
+            items={menuItems as any}
             style={{ 
               border: 'none', 
               flex: 1,
@@ -119,7 +115,7 @@ const Layout = ({ children }: LayoutProps) => {
                     ...(user?.role === 'ADMIN' ? adminMenuItems : []),
                     ...userMenuItems,
                   ],
-                }}
+                } as any}
                 placement="bottomRight"
               >
                 <Space style={{ cursor: 'pointer' }}>

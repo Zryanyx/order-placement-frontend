@@ -1,0 +1,172 @@
+project:
+  name: "订单管理系统前端"
+  basePath: "src"
+  apis: ["GET", "LIST", "POST", "PUT", "DELETE"]
+
+modules:
+  - name: "Category"
+    comment: "商品分类"
+    menu:
+      topKey: "products"
+      topLabel: "商品"
+      groupLabel: "商品分类管理"
+      itemLabel: "商品分类列表"
+      role: "ADMIN"
+    apis: ["GET", "LIST", "POST", "PUT", "DELETE"]
+    fields:
+      - name: "id"
+        type: "Long"
+        comment: "主键ID"
+        primaryKey: true
+        autoIncrement: true
+      - name: "name"
+        type: "String"
+        comment: "分类名称"
+        length: 100
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "price"
+        type: "BigDecimal"
+        comment: "商品价格"
+        precision: 10
+        scale: 2
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["GE", "LE"]
+      - name: "stock"
+        type: "Integer"
+        comment: "库存数量"
+        defaultValue: 0
+        query:
+          enabled: true
+          queryTypes: ["GT", "LT"]
+      - name: "description"
+        type: "String"
+        comment: "分类描述"
+        length: 500
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "status"
+        type: "Integer"
+        comment: "分类状态"
+        defaultValue: 1
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "category"
+        type: "String"
+        comment: "分类名称"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "image_url"
+        type: "String"
+        comment: "分类图片"
+        length: 200
+      - name: "created_time"
+        type: "LocalDateTime"
+        comment: "创建时间"
+        defaultValue: "CURRENT_TIMESTAMP"
+      - name: "updated_time"
+        type: "LocalDateTime"
+        comment: "更新时间"
+        defaultValue: "CURRENT_TIMESTAMP"
+      - name: "deleted"
+        type: "Integer"
+        comment: "删除标记"
+        defaultValue: 0
+        logicDelete: true
+
+  - name: "UserAddress"
+    comment: "用户地址"
+    usePlural: true #决定是否需要复数的api路径
+    menu:
+      topKey: "user"
+      topLabel: "用户"
+      groupLabel: "用户地址管理"
+      itemLabel: "用户地址列表"
+      role: "ADMIN"
+    apis: ["GET", "LIST", "POST", "PUT", "DELETE"]
+    fields:
+      - name: "id"
+        type: "Long"
+        comment: "主键ID"
+        primaryKey: true
+        autoIncrement: true
+      - name: "user_id"
+        type: "Long"
+        comment: "用户ID"
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "receiver_name"
+        type: "String"
+        comment: "收货人姓名"
+        length: 50
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "receiver_phone"
+        type: "String"
+        comment: "收货人电话"
+        length: 20
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "province"
+        type: "String"
+        comment: "省份"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "city"
+        type: "String"
+        comment: "城市"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "district"
+        type: "String"
+        comment: "区县"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "detail_address"
+        type: "String"
+        comment: "详细地址"
+        length: 200
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "is_default"
+        type: "Integer"
+        comment: "是否默认"
+        defaultValue: 0
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "created_time"
+        type: "LocalDateTime"
+        comment: "创建时间"
+        defaultValue: "CURRENT_TIMESTAMP"
+      - name: "updated_time"
+        type: "LocalDateTime"
+        comment: "更新时间"
+        defaultValue: "CURRENT_TIMESTAMP"
+      - name: "deleted"
+        type: "Integer"
+        comment: "删除标记"
+        defaultValue: 0
+        logicDelete: true

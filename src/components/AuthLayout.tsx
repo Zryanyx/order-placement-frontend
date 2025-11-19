@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { Layout as AntLayout, Menu, Button, Space } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { UserOutlined } from '@ant-design/icons';
 
 const { Header, Content } = AntLayout;
 
@@ -13,7 +12,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const menuItems = [
+  const menuItems: any[] = [
     // 登录页面不显示商品列表按钮，只保留系统标题
   ];
 

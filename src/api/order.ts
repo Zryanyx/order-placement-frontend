@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { Order, OrderItem, CreateOrderRequest, OrderQueryParams, PageResponse, OrderFullInfo } from '@/types';
+import { Order, CreateOrderRequest, OrderQueryParams, PageResponse, OrderFullInfo } from '@/types';
 
 // 创建订单
 export const createOrder = (data: CreateOrderRequest) => {

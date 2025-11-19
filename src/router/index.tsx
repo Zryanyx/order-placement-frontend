@@ -1,3 +1,8 @@
+import AdminUserAddressList from '@/pages/Admin/UserAddressList'
+import AdminUserAddressForm from '@/pages/Admin/UserAddressForm'
+import AdminCategoryList from '@/pages/Admin/CategoryList'
+import AdminCategoryForm from '@/pages/Admin/CategoryForm'
+
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import App from '@/App';
 import Login from '@/pages/Auth/Login';
@@ -99,6 +104,54 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requireAdmin>
             <AdminOrderList />
+          </ProtectedRoute>
+        ),
+      },
+{
+        path: 'admin/category',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminCategoryList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/category/new',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminCategoryForm />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/category/:id/edit',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminCategoryForm />
+          </ProtectedRoute>
+        ),
+      },
+{
+        path: 'admin/user-addresses',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminUserAddressList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/user-addresses/new',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminUserAddressForm />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/user-addresses/:id/edit',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminUserAddressForm />
           </ProtectedRoute>
         ),
       },

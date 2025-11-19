@@ -1,0 +1,18 @@
+{
+  "stamp": "20251120-103358",
+  "files": [
+    "src\\router\\index.tsx",
+    "src\\components\\ThreeLevelLayout.tsx",
+    "src\\App.tsx",
+    "src\\menu-integration.tsx",
+    "src\\types\\index.ts"
+  ],
+  "created": [
+    "src\\api\\category.ts",
+    "src\\pages\\Admin\\CategoryList.tsx",
+    "src\\pages\\Admin\\CategoryForm.tsx",
+    "src\\api\\user-address.ts",
+    "src\\pages\\Admin\\UserAddressList.tsx",
+    "src\\pages\\Admin\\UserAddressForm.tsx"
+  ]
+}
