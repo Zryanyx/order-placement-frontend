@@ -88,7 +88,10 @@ const AdminCategoryList = () => {
         { name: 'stock', label: '库存数量', component: 'number' },
         { name: 'description', label: '分类描述', component: 'input' },
         { name: 'status', label: '分类状态', component: 'number' },
-        { name: 'category', label: '分类名称', component: 'input' }].map(item => (
+        { name: 'category', label: '分类名称', component: 'input' },
+        { name: 'imageUrl', label: '分类图片', component: 'input' },
+        { name: 'createdTime', label: '创建时间', component: 'input' },
+        { name: 'updatedTime', label: '更新时间', component: 'input' }].map(item => (
             <Form.Item key={item.name} name={item.name} label={item.label}>
               {item.component === 'number' ? <InputNumber style={{ width: 160 }} /> : <Input style={{ width: 200 }} allowClear />}
             </Form.Item>

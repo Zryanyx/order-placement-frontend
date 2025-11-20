@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card, Form, Input, InputNumber, Button, message, Typography } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { getUserAddressById, createUserAddress, updateUserAddress } from '@/api/user-addresses'
+import { getUserAddressById, createUserAddress, updateUserAddress } from '@/api/useraddress'
 import { UserAddress } from '@/types'
 
 const { Title } = Typography
@@ -37,7 +37,7 @@ const AdminUserAddressForm = () => {
         await createUserAddress(values)
         message.success('创建成功')
       }
-      navigate('/admin/user-addresses')
+      navigate('/admin/useraddress')
     } catch (error) {
       message.error('操作失败')
     } finally {
@@ -47,7 +47,7 @@ const AdminUserAddressForm = () => {
 
   return (
     <div>
-      <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/user-addresses')} style={{ marginBottom: 16 }}>返回</Button>
+      <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/useraddress')} style={{ marginBottom: 16 }}>返回</Button>
       <Card>
         <Title level={3}>{isEdit ? '编辑' : '新增'}</Title>
         <Form form={form} layout='vertical' onFinish={handleSubmit} autoComplete='off'>
@@ -67,7 +67,7 @@ const AdminUserAddressForm = () => {
           ))}
           <Form.Item>
             <Button type='primary' htmlType='submit' loading={submitting}>{isEdit ? '更新' : '创建'}</Button>
-            <Button style={{ marginLeft: 8 }} onClick={() => navigate('/admin/user-addresses')}>取消</Button>
+            <Button style={{ marginLeft: 8 }} onClick={() => navigate('/admin/useraddress')}>取消</Button>
           </Form.Item>
         </Form>
       </Card>

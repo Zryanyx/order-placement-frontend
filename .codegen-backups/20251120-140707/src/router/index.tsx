@@ -155,30 +155,6 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-{
-        path: 'admin/product',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminProductList />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/product/new',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminProductForm />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/product/:id/edit',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminProductForm />
-          </ProtectedRoute>
-        ),
-      },
     ],
   },
 ]);

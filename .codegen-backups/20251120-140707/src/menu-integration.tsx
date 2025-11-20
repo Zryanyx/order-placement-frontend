@@ -24,14 +24,6 @@ export const generatedMenuData: Record<string, MenuItem[]> = {
       children: [
         { key: '/admin/category', label: '商品分类列表', role: 'ADMIN' }
       ]
-    },
-    {
-      key: '商品信息管理',
-      label: '商品信息管理',
-      role: 'ADMIN',
-      children: [
-        { key: '/admin/product', label: '商品列表', role: 'ADMIN' }
-      ]
     }
   ],
 

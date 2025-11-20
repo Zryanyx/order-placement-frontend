@@ -4,9 +4,7 @@ export const getCategoryList = (params: CategoryQueryParams) => {
   return request.get<PageResponse<Category>>('/category', { params })
 }
 export const getCategoryById = (id: number) => {
-  return request.get<Category>(
-      `/category/${id}`
-    )
+  return request.get<Category>(`/category/${id}`)
 }
 export const createCategory = (data: Category) => {
   return request.post<Category>('/category', data)

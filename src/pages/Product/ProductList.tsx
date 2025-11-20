@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, Input, Select, Button, Row, Col, Pagination, Spin, Empty, Tag, message } from 'antd';
 import { SearchOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { getProducts } from '@/api/product';
+import { getProductList } from '@/api/product';
 import { Product, ProductQueryParams } from '@/types';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
@@ -26,7 +26,7 @@ const ProductList = () => {
   const fetchProducts = async (params: ProductQueryParams = {}) => {
     setLoading(true);
     try {
-      const response = await getProducts({
+      const response = await getProductList({
         pageNum: current,
         pageSize,
         keyword: keyword || undefined,

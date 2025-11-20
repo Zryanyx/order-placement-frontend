@@ -132,7 +132,7 @@ export const router = createBrowserRouter([
         ),
       },
 {
-        path: 'admin/useraddress',
+        path: 'admin/user-addresses',
         element: (
           <ProtectedRoute requireAdmin>
             <AdminUserAddressList />
@@ -140,7 +140,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'admin/useraddress/new',
+        path: 'admin/user-addresses/new',
         element: (
           <ProtectedRoute requireAdmin>
             <AdminUserAddressForm />
@@ -148,34 +148,10 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'admin/useraddress/:id/edit',
+        path: 'admin/user-addresses/:id/edit',
         element: (
           <ProtectedRoute requireAdmin>
             <AdminUserAddressForm />
-          </ProtectedRoute>
-        ),
-      },
-{
-        path: 'admin/product',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminProductList />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/product/new',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminProductForm />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/product/:id/edit',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminProductForm />
           </ProtectedRoute>
         ),
       },

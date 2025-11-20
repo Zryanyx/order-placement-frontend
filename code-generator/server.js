@@ -3,7 +3,6 @@ import path from 'node:path'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
 import { runGeneration } from './core/generator.js'
-import { rollbackLatest, rollbackBy } from './core/rollback.js'
 
 const app = express()
 app.use(express.json({ limit: '2mb' }))
@@ -42,14 +41,6 @@ app.get('/', async (req, res) => {
 </form>
 </details>
 
-<details>
-<summary>回滚</summary>
-<form id='rollbackForm'>
-<label>备份时间戳<input name='stamp' placeholder='留空回滚最新'/></label>
-<button type='submit'>回滚</button>
-</form>
-</details>
-
 <pre id='resp'></pre>
 
 <script>
@@ -76,13 +67,7 @@ document.getElementById('yamlForm').addEventListener('submit', async (e)=>{
   const r = await fetch('/generate-from-yaml', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ yaml: yamlText }) })
   const t = await r.text(); resp.textContent = t
 })
-document.getElementById('rollbackForm').addEventListener('submit', async (e)=>{
-  e.preventDefault()
-  const fd = new FormData(e.target)
-  const stamp = fd.get('stamp')
-  const r = await fetch('/rollback', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ stamp }) })
-  const t = await r.text(); resp.textContent = t
-})
+
 </script>
 </body>
 </html>`)
@@ -94,7 +79,6 @@ app.post('/generate', async (req, res) => {
     const out = await runGeneration(cfg)
     res.send(JSON.stringify(out))
   } catch (e) {
-    try { await rollbackLatest() } catch {}
     res.status(500).send(e.message || String(e))
   }
 })
@@ -106,20 +90,11 @@ app.post('/generate-from-yaml', async (req, res) => {
     const out = await runGeneration(cfg)
     res.send(JSON.stringify(out))
   } catch (e) {
-    try { await rollbackLatest() } catch {}
     res.status(500).send(e.message || String(e))
   }
 })
 
-app.post('/rollback', async (req, res) => {
-  try {
-    const { stamp } = req.body
-    const out = stamp ? await rollbackBy(stamp) : await rollbackLatest()
-    res.send(JSON.stringify(out))
-  } catch (e) {
-    res.status(500).send(e.message || String(e))
-  }
-})
+
 
 const port = process.env.PORT || 4399
 app.listen(port, () => {

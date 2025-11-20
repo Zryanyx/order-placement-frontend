@@ -1,7 +1,44 @@
 import path from 'node:path'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
-import { ensureDir, writeText, readText, projectRoot, srcRoot, toCamel, toPascal, toKebab, toPlural, createBackup, recordCreated } from './utils.js'
+import { ensureDir, writeText, readText, projectRoot, srcRoot, toCamel, toPascal, toKebab, toPlural } from './utils.js'
+
+// 解析新的功能配置格式
+const parseApiFunctions = (apis) => {
+  const functions = {
+    get: false,
+    list: false,
+    create: false,
+    update: false,
+    delete: false,
+    search2: false,
+    searchFields: []
+  }
+  
+  if (!apis || !Array.isArray(apis)) return functions
+  
+  for (const api of apis) {
+    const apiStr = String(api).toLowerCase()
+    if (apiStr === 'get') functions.get = true
+    if (apiStr === 'list') functions.list = true
+    if (apiStr === 'create') functions.create = true
+    if (apiStr === 'update') functions.update = true
+    if (apiStr === 'delete') functions.delete = true
+    if (apiStr === 'search2') functions.search2 = true
+    
+    // 解析search(字段1 字段2 字段3)格式
+    if (apiStr.startsWith('search(') && apiStr.endsWith(')')) {
+      const fieldsStr = apiStr.slice(7, -1).trim()
+      functions.searchFields = fieldsStr.split(/\s+/).filter(f => f.length > 0)
+    }
+  }
+  
+  // GET和LIST是必须有的
+  functions.get = true
+  functions.list = true
+  
+  return functions
+}
 
 const renderApi = (module, projectApis = []) => {
   const namePascal = toPascal(module.name)
@@ -13,42 +50,46 @@ const renderApi = (module, projectApis = []) => {
   const routeBase = module.routeBase ? module.routeBase : kebab
   // 修复：由于request.ts中baseURL已包含'/api'前缀，这里不需要重复添加
   const urlBase = `/${routeBase}`
-  const has = (m) => (module.apis && module.apis.length ? module.apis : projectApis).map((x) => String(x).toUpperCase()).includes(m)
+  
+  // 解析新的功能配置
+  const apis = module.apis && module.apis.length ? module.apis : projectApis
+  const functions = parseApiFunctions(apis)
+  
   const lines = []
   lines.push("import request from '@/utils/request'")
   lines.push(`import { ${namePascal}, ${namePascal}QueryParams, PageResponse } from '@/types'`)
-  if (has('GET') || has('LIST')) {
-    lines.push(`export const get${namePascal}List = (params: ${namePascal}QueryParams) => {`)
-    lines.push(`  return request.get<PageResponse<${namePascal}>>('${urlBase}', { params })`)
-    lines.push('}')
-  }
-  if (has('GET')) {
-    lines.push(`export const get${namePascal}ById = (id: number) => {`)
-    lines.push(`  return request.get<${namePascal}>(
-      \`${urlBase}/\${id}\`
-    )`)
-    lines.push('}')
-  }
-  if (has('POST')) {
+  
+  // LIST功能（必须）
+  lines.push(`export const get${namePascal}List = (params: ${namePascal}QueryParams) => {`)
+  lines.push(`  return request.get<PageResponse<${namePascal}>>('${urlBase}', { params })`)
+  lines.push('}')
+  
+  // GET功能（必须）
+  lines.push(`export const get${namePascal}ById = (id: number) => {`)
+  lines.push(`  return request.get<${namePascal}>(\`${urlBase}/\${id}\`)`)
+  lines.push('}')
+  
+  // CREATE功能
+  if (functions.create) {
     lines.push(`export const create${namePascal} = (data: ${namePascal}) => {`)
     lines.push(`  return request.post<${namePascal}>('${urlBase}', data)`)
     lines.push('}')
   }
-  if (has('PUT')) {
+  
+  // UPDATE功能
+  if (functions.update) {
     lines.push(`export const update${namePascal} = (id: number, data: ${namePascal}) => {`)
     lines.push(`  return request.put<${namePascal}>(\`${urlBase}/\${id}\`, data)`)
     lines.push('}')
   }
-  if (has('PATCH')) {
-    lines.push(`export const patch${namePascal} = (id: number, data: Partial<${namePascal}>) => {`)
-    lines.push(`  return request.patch<${namePascal}>(\`${urlBase}/\${id}\`, data)`)
-    lines.push('}')
-  }
-  if (has('DELETE')) {
+  
+  // DELETE功能
+  if (functions.delete) {
     lines.push(`export const delete${namePascal} = (id: number) => {`)
     lines.push(`  return request.delete<void>(\`${urlBase}/\${id}\`)`)
     lines.push('}')
   }
+  
   return lines.join('\n')
 }
 
@@ -56,7 +97,7 @@ const tsType = (f) => {
   return f.type ? (f.type === 'BigDecimal' ? 'number' : f.type.toLowerCase() === 'string' ? 'string' : ['Integer', 'Long', 'Double', 'Float', 'BigDecimal'].includes(f.type) ? 'number' : ['LocalDateTime', 'Date', 'Timestamp'].includes(f.type) ? 'string' : f.type) : 'any'
 }
 
-const renderTypes = (module) => {
+const renderTypes = (module, projectApis = []) => {
   const namePascal = toPascal(module.name)
   const fields = module.fields || []
   const modelLines = []
@@ -67,12 +108,29 @@ const renderTypes = (module) => {
     modelLines.push(`  ${toCamel(f.name)}${optional}: ${t};`)
   }
   modelLines.push('}')
-  const queryEnabled = fields.filter((f) => f.query && f.query.enabled)
+  
+  // 解析新的功能配置
+  const apis = module.apis && module.apis.length ? module.apis : projectApis
+  const functions = parseApiFunctions(apis)
+  
+  // 确定查询字段
+  let queryFields = []
+  if (functions.search2) {
+    // search2: 使用所有字段作为查询条件
+    queryFields = fields.filter(f => !f.primaryKey && !f.logicDelete)
+  } else if (functions.searchFields.length > 0) {
+    // search(字段1 字段2 字段3): 使用指定字段作为查询条件
+    queryFields = fields.filter(f => functions.searchFields.includes(f.name))
+  } else {
+    // 原有的query配置方式
+    queryFields = fields.filter((f) => f.query && f.query.enabled)
+  }
+  
   const queryLines = []
   queryLines.push(`export interface ${namePascal}QueryParams {`)
   queryLines.push('  pageNum?: number;')
   queryLines.push('  pageSize?: number;')
-  for (const f of queryEnabled) {
+  for (const f of queryFields) {
     const t = tsType(f)
     queryLines.push(`  ${toCamel(f.name)}?: ${t};`)
   }
@@ -80,7 +138,7 @@ const renderTypes = (module) => {
   return modelLines.join('\n') + '\n\n' + queryLines.join('\n')
 }
 
-const renderAdminListPage = (module) => {
+const renderAdminListPage = (module, projectApis = []) => {
   const namePascal = toPascal(module.name)
   const nameCamel = toCamel(module.name)
   // 根据配置决定是否使用复数形式
@@ -89,7 +147,24 @@ const renderAdminListPage = (module) => {
   // 使用模块名的小写形式作为路由路径，而不是复数形式
   const routeBase = module.routeBase ? module.routeBase : kebab
   const fields = module.fields || []
-  const queryFields = fields.filter((f) => f.query && f.query.enabled)
+  
+  // 解析新的功能配置
+  const apis = module.apis && module.apis.length ? module.apis : projectApis
+  const functions = parseApiFunctions(apis)
+  
+  // 确定查询字段
+  let queryFields = []
+  if (functions.search2) {
+    // search2: 使用所有字段作为查询条件
+    queryFields = fields.filter(f => !f.primaryKey && !f.logicDelete)
+  } else if (functions.searchFields.length > 0) {
+    // search(字段1 字段2 字段3): 使用指定字段作为查询条件
+    queryFields = fields.filter(f => functions.searchFields.includes(f.name))
+  } else {
+    // 原有的query配置方式
+    queryFields = fields.filter((f) => f.query && f.query.enabled)
+  }
+  
   const columns = fields.filter((f) => !f.logicDelete)
   const formItems = queryFields
     .map((f) => {
@@ -107,11 +182,15 @@ const renderAdminListPage = (module) => {
     })
     .join(',\n    ')
 
+  // 根据功能配置决定导入哪些API
+  const apiImports = ['get${namePascal}List']
+  if (functions.delete) apiImports.push('delete${namePascal}')
+  
   return `import { useState, useEffect } from 'react'
 import { Card, Table, Button, Space, Popconfirm, message, Pagination, Typography, Form, Input, InputNumber } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
-import { get${namePascal}List, delete${namePascal} } from '@/api/${routeBase}'
+import { ${apiImports.join(', ')} } from '@/api/${routeBase}'
 import { ${namePascal}, ${namePascal}QueryParams } from '@/types'
 
 const { Title } = Typography
@@ -165,9 +244,9 @@ const Admin${namePascal}List = () => {
     { title: '操作', key: 'action', width: 200, render: (_: any, record: ${namePascal}) => (
       <Space>
         <Button type='link' icon={<EditOutlined />} onClick={() => navigate('/admin/${routeBase}/' + record.id + '/edit')}>编辑</Button>
-        <Popconfirm title='确定要删除吗？' onConfirm={() => handleDelete(record.id)} okText='确定' cancelText='取消'>
+        ${functions.delete ? `<Popconfirm title='确定要删除吗？' onConfirm={() => handleDelete(record.id)} okText='确定' cancelText='取消'>
           <Button type='link' danger icon={<DeleteOutlined />}>删除</Button>
-        </Popconfirm>
+        </Popconfirm>` : ''}
       </Space>
     ) }
   ]
@@ -177,7 +256,7 @@ const Admin${namePascal}List = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <Title level={3}>${module.comment || namePascal}管理</Title>
         <Space>
-          <Button type='primary' icon={<PlusOutlined />} onClick={() => navigate('/admin/${routeBase}/new')}>新增</Button>
+          ${functions.create ? `<Button type='primary' icon={<PlusOutlined />} onClick={() => navigate('/admin/${routeBase}/new')}>新增</Button>` : ''}
         </Space>
       </div>
 
@@ -211,13 +290,18 @@ export default Admin${namePascal}List
 `
 }
 
-const renderAdminFormPage = (module) => {
+const renderAdminFormPage = (module, projectApis = []) => {
   const namePascal = toPascal(module.name)
   // 根据配置决定是否使用复数形式
   const usePlural = module.usePlural === true
   const kebab = toKebab(module.name, usePlural)
   // 使用模块名的小写形式作为路由路径，而不是复数形式
   const routeBase = module.routeBase ? module.routeBase : kebab
+  
+  // 解析新的功能配置
+  const apis = module.apis && module.apis.length ? module.apis : projectApis
+  const functions = parseApiFunctions(apis)
+  
   const fields = (module.fields || []).filter((f) => !f.primaryKey && !f.logicDelete)
   const formItems = fields
     .map((f) => {
@@ -227,11 +311,18 @@ const renderAdminFormPage = (module) => {
       return `{ name: '${c}', label: '${f.comment || f.name}', component: 'input', required: ${f.nullable === false} }`
     })
     .join(',\n        ')
+  
+  // 根据功能配置决定导入哪些API
+  const apiImports = []
+  if (functions.get) apiImports.push('get${namePascal}ById')
+  if (functions.create) apiImports.push('create${namePascal}')
+  if (functions.update) apiImports.push('update${namePascal}')
+  
   return `import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card, Form, Input, InputNumber, Button, message, Typography } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { get${namePascal}ById, create${namePascal}, update${namePascal} } from '@/api/${routeBase}'
+import { ${apiImports.join(', ')} } from '@/api/${routeBase}'
 import { ${namePascal} } from '@/types'
 
 const { Title } = Typography
@@ -249,8 +340,8 @@ const Admin${namePascal}Form = () => {
 
   const fetchData = async () => {
     try {
-      const response = await get${namePascal}ById(Number(id))
-      form.setFieldsValue(response.data)
+      ${functions.get ? `const response = await get${namePascal}ById(Number(id))
+      form.setFieldsValue(response.data)` : 'form.setFieldsValue({})'}
     } catch (error) {
       message.error('获取信息失败')
     }
@@ -260,11 +351,11 @@ const Admin${namePascal}Form = () => {
     setSubmitting(true)
     try {
       if (isEdit && id) {
-        await update${namePascal}(Number(id), values)
-        message.success('更新成功')
+        ${functions.update ? `await update${namePascal}(Number(id), values)
+        message.success('更新成功')` : 'message.error("更新功能未启用")'}
       } else {
-        await create${namePascal}(values)
-        message.success('创建成功')
+        ${functions.create ? `await create${namePascal}(values)
+        message.success('创建成功')` : 'message.error("创建功能未启用")'}
       }
       navigate('/admin/${routeBase}')
     } catch (error) {
@@ -364,8 +455,6 @@ const renderMenuIntegration = (config) => {
 
 export const runGeneration = async (config, opts = {}) => {
   const modules = config.modules || []
-  const filesToBackup = ['src/router/index.tsx', 'src/components/ThreeLevelLayout.tsx', 'src/App.tsx', 'src/menu-integration.tsx', 'src/types/index.ts']
-  const { stamp } = await createBackup(filesToBackup)
   const createdPaths = []
 
   try {
@@ -387,11 +476,11 @@ export const runGeneration = async (config, opts = {}) => {
       await writeText(apiPath, apiContent)
       createdPaths.push(apiPath)
 
-      const listContent = renderAdminListPage(module)
+      const listContent = renderAdminListPage(module, config.project?.apis || [])
       await writeText(listPagePath, listContent)
       createdPaths.push(listPagePath)
 
-      const formContent = renderAdminFormPage(module)
+      const formContent = renderAdminFormPage(module, config.project?.apis || [])
       await writeText(formPagePath, formContent)
       createdPaths.push(formPagePath)
 
@@ -399,7 +488,7 @@ export const runGeneration = async (config, opts = {}) => {
       let typesText = await readText(typesPath)
       const namePascal = toPascal(module.name)
       if (!new RegExp(`export\\s+interface\\s+${namePascal}`).test(typesText)) {
-        const typeBlock = renderTypes(module)
+        const typeBlock = renderTypes(module, config.project?.apis || [])
         typesText = typesText + '\n' + typeBlock + '\n'
         await writeText(typesPath, typesText)
       }
@@ -473,10 +562,8 @@ export const runGeneration = async (config, opts = {}) => {
       await writeText(threePath, threeText)
     }
 
-    await recordCreated(stamp, createdPaths)
-    return { ok: true, stamp }
+    return { ok: true }
   } catch (e) {
-    await recordCreated(stamp, createdPaths)
     throw e
   }
 }

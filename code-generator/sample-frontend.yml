@@ -1,7 +1,13 @@
 project:
   name: "订单管理系统前端"
   basePath: "src"
-  apis: ["GET", "LIST", "POST", "PUT", "DELETE"]
+  # 新的功能配置格式：GET和LIST是必须的，其他功能可选
+  # create: 新增功能，相当于POST
+  # update: 修改功能，相当于PUT  
+  # delete: 删除功能，相当于DELETE
+  # search2: 查询页面带所有字段作为查询条件
+  # search(字段1 字段2): 查询页面带指定字段作为查询条件
+  apis: ["create", "update", "delete", "search2"]
 
 modules:
   - name: "Category"
@@ -12,7 +18,9 @@ modules:
       groupLabel: "商品分类管理"
       itemLabel: "商品分类列表"
       role: "ADMIN"
-    apis: ["GET", "LIST", "POST", "PUT", "DELETE"]
+    # 模块级别的功能配置，会覆盖项目级别的配置
+    # 使用search2: 查询页面显示所有字段作为查询条件
+    apis: ["create", "update", "delete", "search2"]
     fields:
       - name: "id"
         type: "Long"
@@ -82,16 +90,70 @@ modules:
         defaultValue: 0
         logicDelete: true
 
+  - name: "Product"
+    comment: "商品信息"
+    menu:
+      topKey: "products"
+      topLabel: "商品"
+      groupLabel: "商品信息管理"
+      itemLabel: "商品列表"
+      role: "ADMIN"
+    # 只启用查询和查看功能，不启用新增、修改、删除
+    apis: ["search2"]
+    fields:
+      - name: "id"
+        type: "Long"
+        comment: "主键ID"
+        primaryKey: true
+        autoIncrement: true
+      - name: "name"
+        type: "String"
+        comment: "商品名称"
+        length: 100
+        nullable: false
+      - name: "price"
+        type: "BigDecimal"
+        comment: "商品价格"
+        precision: 10
+        scale: 2
+        nullable: false
+      - name: "category_id"
+        type: "Long"
+        comment: "分类ID"
+        nullable: false
+      - name: "description"
+        type: "String"
+        comment: "商品描述"
+        length: 500
+      - name: "status"
+        type: "Integer"
+        comment: "商品状态"
+        defaultValue: 1
+      - name: "created_time"
+        type: "LocalDateTime"
+        comment: "创建时间"
+        defaultValue: "CURRENT_TIMESTAMP"
+      - name: "updated_time"
+        type: "LocalDateTime"
+        comment: "更新时间"
+        defaultValue: "CURRENT_TIMESTAMP"
+      - name: "deleted"
+        type: "Integer"
+        comment: "删除标记"
+        defaultValue: 0
+        logicDelete: true
+
   - name: "UserAddress"
     comment: "用户地址"
-    usePlural: true #决定是否需要复数的api路径
+    # usePlural: true #决定是否需要复数的api路径
     menu:
       topKey: "user"
       topLabel: "用户"
       groupLabel: "用户地址管理"
       itemLabel: "用户地址列表"
       role: "ADMIN"
-    apis: ["GET", "LIST", "POST", "PUT", "DELETE"]
+    # 使用search(字段)语法：查询页面只显示指定字段作为查询条件
+    apis: ["create", "update", "delete", "search(receiver_name receiver_phone province_city)"]
     fields:
       - name: "id"
         type: "Long"

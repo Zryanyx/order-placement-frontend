@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, Table, Button, Space, Popconfirm, message, Pagination, Typography, Form, Input, InputNumber } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
-import { getUserAddressList, deleteUserAddress } from '@/api/user-addresses'
+import { getUserAddressList, deleteUserAddress } from '@/api/useraddress'
 import { UserAddress, UserAddressQueryParams } from '@/types'
 
 const { Title } = Typography
@@ -65,7 +65,7 @@ const AdminUserAddressList = () => {
     { title: '更新时间', dataIndex: 'updatedTime', key: 'updatedTime' },
     { title: '操作', key: 'action', width: 200, render: (_: any, record: UserAddress) => (
       <Space>
-        <Button type='link' icon={<EditOutlined />} onClick={() => navigate('/admin/user-addresses/' + record.id + '/edit')}>编辑</Button>
+        <Button type='link' icon={<EditOutlined />} onClick={() => navigate('/admin/useraddress/' + record.id + '/edit')}>编辑</Button>
         <Popconfirm title='确定要删除吗？' onConfirm={() => handleDelete(record.id)} okText='确定' cancelText='取消'>
           <Button type='link' danger icon={<DeleteOutlined />}>删除</Button>
         </Popconfirm>
@@ -78,20 +78,14 @@ const AdminUserAddressList = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <Title level={3}>用户地址管理</Title>
         <Space>
-          <Button type='primary' icon={<PlusOutlined />} onClick={() => navigate('/admin/user-addresses/new')}>新增</Button>
+          <Button type='primary' icon={<PlusOutlined />} onClick={() => navigate('/admin/useraddress/new')}>新增</Button>
         </Space>
       </div>
 
       <Card style={{ marginBottom: 16 }}>
         <Form form={form} layout='inline' onFinish={fetchData}>
-          {[{ name: 'userId', label: '用户ID', component: 'number' },
-        { name: 'receiverName', label: '收货人姓名', component: 'input' },
-        { name: 'receiverPhone', label: '收货人电话', component: 'input' },
-        { name: 'province', label: '省份', component: 'input' },
-        { name: 'city', label: '城市', component: 'input' },
-        { name: 'district', label: '区县', component: 'input' },
-        { name: 'detailAddress', label: '详细地址', component: 'input' },
-        { name: 'isDefault', label: '是否默认', component: 'number' }].map(item => (
+          {[{ name: 'receiverName', label: '收货人姓名', component: 'input' },
+        { name: 'receiverPhone', label: '收货人电话', component: 'input' }].map(item => (
             <Form.Item key={item.name} name={item.name} label={item.label}>
               {item.component === 'number' ? <InputNumber style={{ width: 160 }} /> : <Input style={{ width: 200 }} allowClear />}
             </Form.Item>

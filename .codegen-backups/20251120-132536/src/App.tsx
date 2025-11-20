@@ -13,7 +13,7 @@ function App() {
 
   useEffect(() => {
     initAuth();
-  }, [initAuth, '/admin/category', '/admin/useraddress', '/admin/product']);
+  }, [initAuth, '/admin/category', '/admin/user-addresses']);
 
   // 需要三级独立滚动布局的页面（所有主要页面）
   const useThreeLevelLayout = [
