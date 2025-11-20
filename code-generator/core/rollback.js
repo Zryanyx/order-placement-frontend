@@ -12,6 +12,45 @@ const getLatestBackup = async () => {
   return stamps.length > 0 ? stamps[0] : null
 }
 
+export const listBackups = async () => {
+  if (!(await fs.pathExists(backupDir))) {
+    return []
+  }
+  
+  const entries = await fs.readdir(backupDir)
+  const stamps = entries.filter(e => /^\d{8}-\d{6}$/.test(e)).sort().reverse()
+  
+  const backups = []
+  for (const stamp of stamps) {
+    const backupPath = path.join(backupDir, stamp)
+    const manifestPath = path.join(backupPath, 'manifest.json')
+    
+    if (await fs.pathExists(manifestPath)) {
+      try {
+        const manifest = await fs.readJson(manifestPath)
+        backups.push({
+          timestamp: stamp,
+          files: manifest.files || []
+        })
+      } catch (error) {
+        // 如果manifest文件损坏，仍然显示备份但无文件信息
+        backups.push({
+          timestamp: stamp,
+          files: []
+        })
+      }
+    } else {
+      // 如果没有manifest文件，只显示时间戳
+      backups.push({
+        timestamp: stamp,
+        files: []
+      })
+    }
+  }
+  
+  return backups
+}
+
 export const rollbackLatest = async () => {
   const stamp = await getLatestBackup()
   if (!stamp) {
@@ -45,5 +84,5 @@ export const rollbackBy = async (stamp) => {
     }
   }
   
-  return { stamp }
+  return { stamp, files: manifest.files }
 }

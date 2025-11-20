@@ -5,6 +5,7 @@ import zhCN from 'antd/locale/zh_CN';
 import Layout from '@/components/Layout';
 import ThreeLevelLayout from '@/components/ThreeLevelLayout';
 import AuthLayout from '@/components/AuthLayout';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAuthStore } from '@/store/authStore';
 
 function App() {
@@ -13,14 +14,10 @@ function App() {
 
   useEffect(() => {
     initAuth();
-  }, [initAuth, '/admin/category', '/admin/useraddress', '/admin/product']);
+  }, [initAuth]);
 
   // 需要三级独立滚动布局的页面（所有主要页面）
   const useThreeLevelLayout = [
-    '/products',
-    '/orders',
-    '/orders/create',
-    '/cart',
     '/admin'
   ].some(path => location.pathname.startsWith(path));
 
@@ -29,19 +26,21 @@ function App() {
 
   return (
     <ConfigProvider locale={zhCN}>
-      {useAuthLayout ? (
-        <AuthLayout>
-          <Outlet />
-        </AuthLayout>
-      ) : useThreeLevelLayout ? (
-        <ThreeLevelLayout>
-          <Outlet />
-        </ThreeLevelLayout>
-      ) : (
-        <Layout>
-          <Outlet />
-        </Layout>
-      )}
+      <ErrorBoundary>
+        {useAuthLayout ? (
+          <AuthLayout>
+            <Outlet />
+          </AuthLayout>
+        ) : useThreeLevelLayout ? (
+          <ThreeLevelLayout>
+            <Outlet />
+          </ThreeLevelLayout>
+        ) : (
+          <Layout>
+            <Outlet />
+          </Layout>
+        )}
+      </ErrorBoundary>
     </ConfigProvider>
   );
 }

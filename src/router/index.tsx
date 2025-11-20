@@ -1,31 +1,35 @@
+import AdminSystemConfigList from '@/pages/Admin/SystemConfigList'
+import AdminSystemConfigForm from '@/pages/Admin/SystemConfigForm'
+import AdminCommentList from '@/pages/Admin/CommentList'
+import AdminCommentForm from '@/pages/Admin/CommentForm'
+import AdminArticleList from '@/pages/Admin/ArticleList'
+import AdminArticleForm from '@/pages/Admin/ArticleForm'
+import AdminProductManagementList from '@/pages/Admin/ProductManagementList'
+import AdminProductManagementForm from '@/pages/Admin/ProductManagementForm'
+import AdminProductCategoryList from '@/pages/Admin/ProductCategoryList'
+import AdminProductCategoryForm from '@/pages/Admin/ProductCategoryForm'
 import AdminUserAddressList from '@/pages/Admin/UserAddressList'
 import AdminUserAddressForm from '@/pages/Admin/UserAddressForm'
-import AdminCategoryList from '@/pages/Admin/CategoryList'
-import AdminCategoryForm from '@/pages/Admin/CategoryForm'
 
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import App from '@/App';
 import Login from '@/pages/Auth/Login';
 import Register from '@/pages/Auth/Register';
-import ProductList from '@/pages/Product/ProductList';
-import ProductDetail from '@/pages/Product/ProductDetail';
-import Cart from '@/pages/Cart/Cart';
-import OrderCreate from '@/pages/Order/OrderCreate';
-import OrderList from '@/pages/Order/OrderList';
-import OrderDetail from '@/pages/Order/OrderDetail';
-import AdminProductList from '@/pages/Admin/ProductList';
-import AdminProductForm from '@/pages/Admin/ProductForm';
-import AdminOrderList from '@/pages/Admin/OrderList';
+import Blank from '@/pages/Blank';
+
 import ProtectedRoute from '@/components/ProtectedRoute';
+import DefaultRedirect from '@/components/DefaultRedirect';
+import { RouteErrorBoundary } from '@/components/ErrorBoundary';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         index: true,
-        element: <Navigate to="/products" replace />,
+        element: <DefaultRedirect />,
       },
       {
         path: 'login',
@@ -35,102 +39,20 @@ export const router = createBrowserRouter([
         path: 'register',
         element: <Register />,
       },
+
       {
-        path: 'products',
-        element: <ProductList />,
+        path: 'blank',
+        element: <Blank />,
       },
       {
-        path: 'products/:id',
-        element: <ProductDetail />,
-      },
-      {
-        path: 'cart',
+        path: 'user-dashboard',
         element: (
           <ProtectedRoute>
-            <Cart />
+            <Blank />
           </ProtectedRoute>
         ),
       },
-      {
-        path: 'orders',
-        element: (
-          <ProtectedRoute>
-            <OrderList />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'orders/create',
-        element: (
-          <ProtectedRoute>
-            <OrderCreate />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'orders/:id',
-        element: (
-          <ProtectedRoute>
-            <OrderDetail />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/products',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminProductList />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/products/new',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminProductForm />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/products/:id/edit',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminProductForm />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/orders',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminOrderList />
-          </ProtectedRoute>
-        ),
-      },
-{
-        path: 'admin/category',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminCategoryList />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/category/new',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminCategoryForm />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/category/:id/edit',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminCategoryForm />
-          </ProtectedRoute>
-        ),
-      },
+
 {
         path: 'admin/useraddress',
         element: (
@@ -156,30 +78,134 @@ export const router = createBrowserRouter([
         ),
       },
 {
-        path: 'admin/product',
+        path: 'admin/productcategory',
         element: (
           <ProtectedRoute requireAdmin>
-            <AdminProductList />
+            <AdminProductCategoryList />
           </ProtectedRoute>
         ),
       },
       {
-        path: 'admin/product/new',
+        path: 'admin/productcategory/new',
         element: (
           <ProtectedRoute requireAdmin>
-            <AdminProductForm />
+            <AdminProductCategoryForm />
           </ProtectedRoute>
         ),
       },
       {
-        path: 'admin/product/:id/edit',
+        path: 'admin/productcategory/:id/edit',
         element: (
           <ProtectedRoute requireAdmin>
-            <AdminProductForm />
+            <AdminProductCategoryForm />
           </ProtectedRoute>
         ),
       },
+{
+        path: 'admin/productmanagement',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminProductManagementList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/productmanagement/new',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminProductManagementForm />
+          </ProtectedRoute>
+        ),
+      },
+ {
+         path: 'admin/productmanagement/:id/edit',
+         element: (
+           <ProtectedRoute requireAdmin>
+             <AdminProductManagementForm />
+           </ProtectedRoute>
+         ),
+       },
+
+{
+        path: 'admin/article',
+        element: (
+          <ProtectedRoute>
+            <AdminArticleList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/article/new',
+        element: (
+          <ProtectedRoute>
+            <AdminArticleForm />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/article/:id/edit',
+        element: (
+          <ProtectedRoute>
+            <AdminArticleForm />
+          </ProtectedRoute>
+        ),
+      },
+{
+        path: 'admin/comment',
+        element: (
+          <ProtectedRoute>
+            <AdminCommentList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/comment/new',
+        element: (
+          <ProtectedRoute>
+            <AdminCommentForm />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/comment/:id/edit',
+        element: (
+          <ProtectedRoute>
+            <AdminCommentForm />
+          </ProtectedRoute>
+        ),
+      },
+{
+        path: 'admin/systemconfig',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminSystemConfigList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/systemconfig/new',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminSystemConfigForm />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/systemconfig/:id/edit',
+        element: (
+          <ProtectedRoute requireAdmin>
+            <AdminSystemConfigForm />
+          </ProtectedRoute>
+        ),
+      },
+
+
+
     ],
   },
 ]);
+
+
+
+
 

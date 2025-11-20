@@ -4,6 +4,29 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '@/api/auth';
 import { useAuthStore } from '@/store/authStore';
+import { generatedMenuData, generatedTopMenuItems } from '@/menu-integration';
+
+// 获取默认页面路径和顶级菜单key - 最上面菜单中的最上面二级菜单中的最上面内容页面
+const getDefaultPageInfo = (): { path: string; topMenuKey: string } => {
+  // 获取最上面菜单
+  const topMenu = generatedTopMenuItems[0];
+  if (!topMenu) return { path: '/admin/productcategory', topMenuKey: 'products' }; // 默认回退路径
+  
+  // 获取最上面菜单对应的二级菜单
+  const secondLevelMenus = generatedMenuData[topMenu.key];
+  if (!secondLevelMenus || secondLevelMenus.length === 0) return { path: '/admin/productcategory', topMenuKey: topMenu.key }; // 默认回退路径
+  
+  // 获取最上面二级菜单
+  const secondLevelMenu = secondLevelMenus[0];
+  if (!secondLevelMenu.children || secondLevelMenu.children.length === 0) return { path: '/admin/productcategory', topMenuKey: topMenu.key }; // 默认回退路径
+  
+  // 获取最上面内容页面
+  const contentPage = secondLevelMenu.children[0];
+  return { 
+    path: contentPage.key || '/admin/productcategory', 
+    topMenuKey: topMenu.key 
+  }; // 默认回退路径
+};
 
 const Login = () => {
   const navigate = useNavigate();
@@ -29,7 +52,19 @@ const Login = () => {
       };
       setAuth(token, user);
       message.success('登录成功');
-      navigate('/products');
+      // 根据用户角色重定向到不同页面
+      // 动态获取默认页面路径和顶级菜单key
+      const { path: defaultPath, topMenuKey } = getDefaultPageInfo();
+      
+      // 通过URL参数传递顶级菜单选中状态
+      const redirectUrl = `${defaultPath}?topMenu=${encodeURIComponent(topMenuKey)}`;
+      
+      if (role === 'admin') {
+        navigate(redirectUrl);
+      } else {
+        // 普通用户重定向到默认页面
+        navigate(redirectUrl);
+      }
     } catch (error: any) {
       message.error(error.message || '登录失败');
     } finally {

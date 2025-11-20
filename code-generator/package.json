@@ -1,5 +1,5 @@
 {
-  "name": "order-frontend-code-generator",
+  "name": "frontend-code-generator",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,9 +9,10 @@
     "generate": "node index.js"
   },
   "dependencies": {
+    "commander": "^14.0.2",
+    "dayjs": "^1.11.10",
     "express": "^4.19.2",
     "fs-extra": "^11.2.0",
-    "js-yaml": "^4.1.0",
-    "dayjs": "^1.11.10"
+    "js-yaml": "^4.1.0"
   }
 }

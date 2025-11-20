@@ -12,7 +12,9 @@ const parseApiFunctions = (apis) => {
     update: false,
     delete: false,
     search2: false,
-    searchFields: []
+    searchFields: [],
+    tableFields: [],
+    tableAllFields: false
   }
   
   if (!apis || !Array.isArray(apis)) return functions
@@ -29,7 +31,20 @@ const parseApiFunctions = (apis) => {
     // 解析search(字段1 字段2 字段3)格式
     if (apiStr.startsWith('search(') && apiStr.endsWith(')')) {
       const fieldsStr = apiStr.slice(7, -1).trim()
+      // 保持原始大小写，不转换为小写
       functions.searchFields = fieldsStr.split(/\s+/).filter(f => f.length > 0)
+    }
+    
+    // 解析table(字段1 字段2 字段3)格式
+    if (apiStr.startsWith('table(') && apiStr.endsWith(')')) {
+      const fieldsStr = apiStr.slice(6, -1).trim()
+      // 保持原始大小写，不转换为小写
+      functions.tableFields = fieldsStr.split(/\s+/).filter(f => f.length > 0)
+    }
+    
+    // 解析table格式（显示所有字段）
+    if (apiStr === 'table') {
+      functions.tableAllFields = true
     }
   }
   
@@ -152,6 +167,10 @@ const renderAdminListPage = (module, projectApis = []) => {
   const apis = module.apis && module.apis.length ? module.apis : projectApis
   const functions = parseApiFunctions(apis)
   
+  console.log('Module:', module.name)
+  console.log('APIs:', apis)
+  console.log('Functions:', functions)
+  
   // 确定查询字段
   let queryFields = []
   if (functions.search2) {
@@ -165,7 +184,21 @@ const renderAdminListPage = (module, projectApis = []) => {
     queryFields = fields.filter((f) => f.query && f.query.enabled)
   }
   
-  const columns = fields.filter((f) => !f.logicDelete)
+  // 确定表格显示字段
+  let tableFields = []
+  if (functions.tableAllFields) {
+    // table: 显示所有字段
+    tableFields = fields.filter(f => !f.logicDelete)
+  } else if (functions.tableFields.length > 0) {
+    // table(字段1 字段2 字段3): 显示指定字段
+    tableFields = fields.filter(f => functions.tableFields.includes(f.name.toLowerCase()) && !f.logicDelete)
+  } else {
+    // 默认显示所有字段
+    tableFields = fields.filter(f => !f.logicDelete)
+  }
+  
+  console.log('Table fields:', tableFields.map(f => f.name))
+  
   const formItems = queryFields
     .map((f) => {
       const c = toCamel(f.name)
@@ -174,24 +207,60 @@ const renderAdminListPage = (module, projectApis = []) => {
       return `{ name: '${c}', label: '${f.comment || f.name}', component: 'input' }`
     })
     .join(',\n        ')
-  const tableCols = columns
+  const tableCols = tableFields
     .map((f) => {
       const c = toCamel(f.name)
-      if (c === 'id') return "{ title: 'ID', dataIndex: 'id', key: 'id', width: 80 }"
-      return `{ title: '${f.comment || f.name}', dataIndex: '${c}', key: '${c}' }`
+      const comment = f.comment || f.name
+      
+      // 根据字段类型和名称设置合适的宽度
+      let width = 120
+      if (c === 'id') width = 80
+      else if (['name', 'title', 'username'].includes(c)) width = 120
+      else if (['phone', 'mobile', 'tel'].includes(c)) width = 120
+      else if (['email'].includes(c)) width = 160
+      else if (['description', 'content', 'remark'].includes(c)) width = 200
+      else if (['amount', 'price', 'total', 'money'].includes(c)) width = 100
+      else if (['status', 'type', 'category'].includes(c)) width = 100
+      else if (['createdTime', 'updatedTime', 'createTime', 'updateTime'].includes(c)) width = 160
+      
+      // 特殊字段的渲染处理
+      if (['amount', 'price', 'total', 'money'].includes(c)) {
+        return `{ title: '${comment}', dataIndex: '${c}', key: '${c}', width: ${width}, render: (value: number) => (
+          <span style={{ color: '#ff4d4f', fontWeight: 'bold' }}>¥{value?.toFixed(2)}</span>
+        ) }`
+      } else if (['status', 'state'].includes(c)) {
+        return `{ title: '${comment}', dataIndex: '${c}', key: '${c}', width: ${width}, render: (status: string) => {
+          const statusMap = {
+            'PENDING_PAYMENT': { color: 'orange', text: '待支付' },
+            'PAID': { color: 'blue', text: '已支付' },
+            'SHIPPED': { color: 'purple', text: '已发货' },
+            'COMPLETED': { color: 'green', text: '已完成' },
+            'CANCELLED': { color: 'red', text: '已取消' },
+            'ACTIVE': { color: 'green', text: '启用' },
+            'INACTIVE': { color: 'red', text: '禁用' }
+          }
+          const statusInfo = statusMap[status] || { color: 'default', text: status }
+          return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
+        } }`
+      } else if (['createdTime', 'updatedTime', 'createTime', 'updateTime'].includes(c)) {
+        return `{ title: '${comment}', dataIndex: '${c}', key: '${c}', width: ${width}, render: (time: string) => dayjs(time).format('YYYY-MM-DD HH:mm:ss') }`
+      } else {
+        return `{ title: '${comment}', dataIndex: '${c}', key: '${c}', width: ${width} }`
+      }
     })
     .join(',\n    ')
 
   // 根据功能配置决定导入哪些API
-  const apiImports = ['get${namePascal}List']
-  if (functions.delete) apiImports.push('delete${namePascal}')
+  const apiImports = [`get${namePascal}List`]
+  if (functions.delete) apiImports.push(`delete${namePascal}`)
   
   return `import { useState, useEffect } from 'react'
-import { Card, Table, Button, Space, Popconfirm, message, Pagination, Typography, Form, Input, InputNumber } from 'antd'
+import { Card, Table, Button, Space, Popconfirm, message, Pagination, Typography, Form, Input, InputNumber, Tag } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { ${apiImports.join(', ')} } from '@/api/${routeBase}'
 import { ${namePascal}, ${namePascal}QueryParams } from '@/types'
+import dayjs from 'dayjs'
 
 const { Title } = Typography
 
@@ -215,7 +284,16 @@ const Admin${namePascal}List = () => {
       const params: ${namePascal}QueryParams = { pageNum: current, pageSize, ...values }
       const response = await get${namePascal}List(params)
       const { records, total: totalCount } = response.data
-      setItems(records)
+      // 将下划线字段名转换为驼峰命名法
+      const formattedRecords = records.map(record => {
+        const formatted = {}
+        Object.keys(record).forEach(key => {
+          const camelKey = key.replace(/_(\\w)/g, (_, letter) => letter.toUpperCase())
+          formatted[camelKey] = record[key]
+        })
+        return formatted
+      })
+      setItems(formattedRecords)
       setTotal(totalCount)
     } catch (error) {
       message.error('获取列表失败')
@@ -224,7 +302,7 @@ const Admin${namePascal}List = () => {
     }
   }
 
-  const handleDelete = async (id: number) => {
+  ${functions.delete ? `const handleDelete = async (id: number) => {
     try {
       await delete${namePascal}(id)
       message.success('删除成功')
@@ -232,7 +310,7 @@ const Admin${namePascal}List = () => {
     } catch (error) {
       message.error('删除失败')
     }
-  }
+  }` : ''}
 
   const handlePageChange = (page: number, size?: number) => {
     setCurrent(page)
@@ -240,7 +318,7 @@ const Admin${namePascal}List = () => {
   }
 
   const columns = [
-    ${tableCols},
+    ${tableCols}${tableCols ? ',' : ''}
     { title: '操作', key: 'action', width: 200, render: (_: any, record: ${namePascal}) => (
       <Space>
         <Button type='link' icon={<EditOutlined />} onClick={() => navigate('/admin/${routeBase}/' + record.id + '/edit')}>编辑</Button>
@@ -254,7 +332,7 @@ const Admin${namePascal}List = () => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Title level={3}>${module.comment || namePascal}管理</Title>
+        <Title level={3}>${module.menu?.itemLabel || module.comment || namePascal}管理</Title>
         <Space>
           ${functions.create ? `<Button type='primary' icon={<PlusOutlined />} onClick={() => navigate('/admin/${routeBase}/new')}>新增</Button>` : ''}
         </Space>
@@ -263,11 +341,11 @@ const Admin${namePascal}List = () => {
       <Card style={{ marginBottom: 16 }}>
         <Form form={form} layout='inline' onFinish={fetchData}>
           {[${formItems}].map(item => (
-            <Form.Item key={item.name} name={item.name} label={item.label}>
-              {item.component === 'number' ? <InputNumber style={{ width: 160 }} /> : <Input style={{ width: 200 }} allowClear />}
+            <Form.Item key={item.name} name={item.name} label={item.label} style={{ marginBottom: 8, display: 'flex', alignItems: 'center' }}>
+              {item.component === 'number' ? <InputNumber style={{ width: 200, height: 32 }} /> : <Input style={{ width: 200, height: 32 }} allowClear />}
             </Form.Item>
           ))}
-          <Form.Item>
+          <Form.Item style={{ marginBottom: 0, display: 'flex', alignItems: 'center' }}>
             <Space>
               <Button type='primary' htmlType='submit'>查询</Button>
               <Button onClick={() => { form.resetFields(); setCurrent(1); fetchData() }}>重置</Button>
@@ -302,8 +380,33 @@ const renderAdminFormPage = (module, projectApis = []) => {
   const apis = module.apis && module.apis.length ? module.apis : projectApis
   const functions = parseApiFunctions(apis)
   
-  const fields = (module.fields || []).filter((f) => !f.primaryKey && !f.logicDelete)
-  const formItems = fields
+  // 确定查询字段
+  let queryFields = []
+  if (functions.search2) {
+    // search2: 使用所有字段作为查询条件
+    queryFields = (module.fields || []).filter(f => !f.primaryKey && !f.logicDelete)
+  } else if (functions.searchFields.length > 0) {
+    // search(字段1 字段2 字段3): 使用指定字段作为查询条件
+    queryFields = (module.fields || []).filter(f => functions.searchFields.includes(f.name))
+  } else {
+    // 原有的query配置方式
+    queryFields = (module.fields || []).filter((f) => f.query && f.query.enabled)
+  }
+  
+  // 确定表单字段：优先使用table配置的字段，否则使用全部字段
+  let formFields = []
+  if (functions.tableAllFields) {
+    // table: 显示全部字段
+    formFields = (module.fields || []).filter(f => !f.primaryKey && !f.logicDelete)
+  } else if (functions.tableFields.length > 0) {
+    // table(字段1 字段2): 使用指定字段
+    formFields = (module.fields || []).filter(f => functions.tableFields.includes(f.name) && !f.primaryKey && !f.logicDelete)
+  } else {
+    // 默认使用全部字段
+    formFields = (module.fields || []).filter(f => !f.primaryKey && !f.logicDelete)
+  }
+  
+  const formItems = formFields
     .map((f) => {
       const c = toCamel(f.name)
       const t = tsType(f)
@@ -314,9 +417,9 @@ const renderAdminFormPage = (module, projectApis = []) => {
   
   // 根据功能配置决定导入哪些API
   const apiImports = []
-  if (functions.get) apiImports.push('get${namePascal}ById')
-  if (functions.create) apiImports.push('create${namePascal}')
-  if (functions.update) apiImports.push('update${namePascal}')
+  if (functions.get) apiImports.push(`get${namePascal}ById`)
+  if (functions.create) apiImports.push(`create${namePascal}`)
+  if (functions.update) apiImports.push(`update${namePascal}`)
   
   return `import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
@@ -335,13 +438,20 @@ const Admin${namePascal}Form = () => {
   const isEdit = !!id
 
   useEffect(() => {
-     if (isEdit && id) fetchData()
+     if (isEdit && id) {
+       fetchData()
+     } else {
+       // 新增模式下，不自动设置创建时间和更新时间
+       form.setFieldsValue({})
+     }
    }, [id, isEdit])
 
   const fetchData = async () => {
     try {
       ${functions.get ? `const response = await get${namePascal}ById(Number(id))
-      form.setFieldsValue(response.data)` : 'form.setFieldsValue({})'}
+      const data = response.data
+      // 修改模式下，不自动设置更新时间
+      form.setFieldsValue(data)` : 'form.setFieldsValue({})'}
     } catch (error) {
       message.error('获取信息失败')
     }
@@ -455,8 +565,7 @@ const renderMenuIntegration = (config) => {
 
 export const runGeneration = async (config, opts = {}) => {
   const modules = config.modules || []
-  const createdPaths = []
-
+  
   try {
     for (const module of modules) {
       // 根据配置决定是否使用复数形式
@@ -474,15 +583,12 @@ export const runGeneration = async (config, opts = {}) => {
 
       const apiContent = renderApi(module, config.project?.apis || [])
       await writeText(apiPath, apiContent)
-      createdPaths.push(apiPath)
 
       const listContent = renderAdminListPage(module, config.project?.apis || [])
       await writeText(listPagePath, listContent)
-      createdPaths.push(listPagePath)
 
       const formContent = renderAdminFormPage(module, config.project?.apis || [])
       await writeText(formPagePath, formContent)
-      createdPaths.push(formPagePath)
 
       const typesPath = path.join(srcRoot, 'types', 'index.ts')
       let typesText = await readText(typesPath)
@@ -499,28 +605,33 @@ export const runGeneration = async (config, opts = {}) => {
       if (!routerText.includes(`import Admin${namePascal}List`)) {
         routerText = importList + '\n' + routerText
       }
+      
+      // 根据模块的角色权限决定路由保护级别
+      const moduleRole = module.menu?.role || 'ADMIN'
+      const requireAdmin = moduleRole === 'ADMIN'
+      const protectedRouteElement = requireAdmin 
+        ? `<ProtectedRoute requireAdmin>\n            <Admin${namePascal}List />\n          </ProtectedRoute>`
+        : `<ProtectedRoute>\n            <Admin${namePascal}List />\n          </ProtectedRoute>`
+      const protectedFormElement = requireAdmin
+        ? `<ProtectedRoute requireAdmin>\n            <Admin${namePascal}Form />\n          </ProtectedRoute>`
+        : `<ProtectedRoute>\n            <Admin${namePascal}Form />\n          </ProtectedRoute>`
+      
       const routeBlock = `{
         path: 'admin/${routeBase}',
         element: (
-          <ProtectedRoute requireAdmin>
-            <Admin${namePascal}List />
-          </ProtectedRoute>
+          ${protectedRouteElement}
         ),
       },
       {
         path: 'admin/${routeBase}/new',
         element: (
-          <ProtectedRoute requireAdmin>
-            <Admin${namePascal}Form />
-          </ProtectedRoute>
+          ${protectedFormElement}
         ),
       },
       {
         path: 'admin/${routeBase}/:id/edit',
         element: (
-          <ProtectedRoute requireAdmin>
-            <Admin${namePascal}Form />
-          </ProtectedRoute>
+          ${protectedFormElement}
         ),
       },`
       if (!routerText.includes(`path: 'admin/${routeBase}'`)) {
@@ -562,7 +673,9 @@ export const runGeneration = async (config, opts = {}) => {
       await writeText(threePath, threeText)
     }
 
-    return { ok: true }
+    return { 
+      ok: true
+    }
   } catch (e) {
     throw e
   }

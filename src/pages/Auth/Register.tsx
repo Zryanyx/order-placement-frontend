@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
-import { register, checkUsername, checkEmail } from '@/api/auth';
+import { register } from '@/api/auth';
 import { debounce } from '@/utils/debounce';
 
 const Register = () => {
@@ -10,22 +10,16 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
-  // 检查用户名是否已存在
+  // 检查用户名格式
   const validateUsername = debounce(async (_, value: string) => {
     if (!value || value.length < 3) {
       return Promise.resolve();
     }
-    try {
-      const exists = await checkUsername(value);
-      if (exists) {
-        return Promise.reject(new Error('用户名已存在'));
-      }
-    } catch (error) {
-      return Promise.reject(new Error('检查用户名失败'));
-    }
+    // 后端已经处理用户名唯一性验证，前端只检查格式
+    return Promise.resolve();
   }, 500);
 
-  // 检查邮箱是否已存在
+  // 检查邮箱格式
   const validateEmail = debounce(async (_, value: string) => {
     if (!value) {
       return Promise.resolve();
@@ -34,14 +28,8 @@ const Register = () => {
     if (!emailRegex.test(value)) {
       return Promise.reject(new Error('请输入有效的邮箱地址'));
     }
-    try {
-      const exists = await checkEmail(value);
-      if (exists) {
-        return Promise.reject(new Error('邮箱已存在'));
-      }
-    } catch (error) {
-      return Promise.reject(new Error('检查邮箱失败'));
-    }
+    // 后端已经处理邮箱唯一性验证，前端只检查格式
+    return Promise.resolve();
   }, 500);
 
   const onFinish = async (values: { username: string; password: string; email: string; confirmPassword?: string }) => {

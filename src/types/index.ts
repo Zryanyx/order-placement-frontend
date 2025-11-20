@@ -12,57 +12,7 @@ export interface User {
   updatedTime: string;
 }
 
-// 商品模型
-export interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  stock: number;
-  category: string;
-  status: 0 | 1;  // 0:下架, 1:上架
-  createdTime: string;
-  updatedTime?: string;
-}
 
-// 订单模型
-export interface Order {
-  id: number;
-  orderNo: string;
-  userId: number;
-  totalAmount: number;
-  status: 'PENDING_PAYMENT' | 'PAID' | 'SHIPPED' | 'COMPLETED' | 'CANCELLED';
-  paymentTime?: string;
-  shippingTime?: string;
-  completedTime?: string;
-  shippingAddress: string;
-  receiverName: string;
-  receiverPhone: string;
-  remark?: string;
-  createdTime: string;
-  updatedTime?: string;
-}
-
-// 订单项模型
-export interface OrderItem {
-  id: number;
-  orderId: number;
-  productId: number;
-  productName: string;
-  productPrice: number;
-  quantity: number;
-  subtotal: number;
-  createdTime: string;
-  updatedTime?: string;
-}
-
-// 订单完整信息（包含订单详情和订单项列表）
-export interface OrderFullInfo {
-  order: Order;
-  orderItems: OrderItem[];
-  totalItems: number;
-  totalQuantity: number;
-}
 
 // 统一响应格式（已弃用：后端已改为使用 ResponseEntity，不再使用此格式）
 // @deprecated 后端现在直接返回数据，HTTP状态码在响应头中
@@ -101,40 +51,6 @@ export interface RegisterRequest {
   username: string;
   password: string;
   email: string;
-}
-
-// 创建订单请求
-export interface CreateOrderRequest {
-  userId: number;
-  orderItems: {
-    productId: number;
-    quantity: number;
-  }[];
-  shippingAddress: string;
-  receiverName: string;
-  receiverPhone: string;
-  remark?: string;
-}
-
-// 购物车项
-export interface CartItem {
-  product: Product;
-  quantity: number;
-}
-
-// 商品查询参数
-export interface ProductQueryParams {
-  pageNum?: number;
-  pageSize?: number;
-  keyword?: string;
-  category?: string;
-}
-
-// 订单查询参数
-export interface OrderQueryParams {
-  pageNum?: number;
-  pageSize?: number;
-  status?: string;
 }
 
 
@@ -189,4 +105,175 @@ export interface UserAddressQueryParams {
   district?: string;
   detailAddress?: string;
   isDefault?: number;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  price: number;
+  categoryId: number;
+  description: string;
+  status?: number;
+  createdTime?: string;
+  updatedTime?: string;
+  deleted?: number;
+}
+
+export interface ProductQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  name?: string;
+  price?: number;
+  categoryId?: number;
+  description?: string;
+  status?: number;
+  createdTime?: string;
+  updatedTime?: string;
+}
+
+export interface ProductCategory {
+  id: number;
+  name: string;
+  price: number;
+  stock?: number;
+  description: string;
+  status?: number;
+  category: string;
+  imageUrl: string;
+  createdTime?: string;
+  updatedTime?: string;
+  deleted?: number;
+}
+
+export interface ProductCategoryQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  name?: string;
+  price?: number;
+  stock?: number;
+  description?: string;
+  status?: number;
+  category?: string;
+  imageUrl?: string;
+  createdTime?: string;
+  updatedTime?: string;
+}
+
+export interface ProductManagement {
+  id: number;
+  name: string;
+  price: number;
+  categoryId: number;
+  description: string;
+  status?: number;
+  createdTime?: string;
+  updatedTime?: string;
+  deleted?: number;
+}
+
+export interface ProductManagementQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  name?: string;
+  price?: number;
+  categoryId?: number;
+  description?: string;
+  status?: number;
+  createdTime?: string;
+  updatedTime?: string;
+}
+
+export interface AdminOnlyModule {
+  id: number;
+  name: string;
+}
+
+export interface AdminOnlyModuleQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  name?: string;
+}
+
+export interface UserModule {
+  id: number;
+  title: string;
+}
+
+export interface UserModuleQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  title?: string;
+}
+
+export interface PublicModule {
+  id: number;
+  content: string;
+}
+
+export interface PublicModuleQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  content?: string;
+}
+
+export interface Article {
+  id: number;
+  title: string;
+  content: string;
+  author: string;
+  category: string;
+  status?: number;
+  viewCount?: number;
+  likeCount?: number;
+  publishTime: string;
+  createdTime: string;
+  updatedTime: string;
+  deleted?: number;
+}
+
+export interface ArticleQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  title?: string;
+  author?: string;
+  status?: number;
+}
+
+export interface Comment {
+  id: number;
+  userId: number;
+  articleId: number;
+  content: string;
+  parentId?: number;
+  likeCount?: number;
+  status?: number;
+  createdTime: string;
+  updatedTime: string;
+  deleted?: number;
+}
+
+export interface CommentQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  userId?: number;
+  content?: string;
+}
+
+export interface SystemConfig {
+  id: number;
+  configName: string;
+  configKey: string;
+  configValue: string;
+  configType?: number;
+  remark: string;
+  createdTime: string;
+  updatedTime: string;
+  deleted?: number;
+}
+
+export interface SystemConfigQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  configName?: string;
+  configKey?: string;
 }

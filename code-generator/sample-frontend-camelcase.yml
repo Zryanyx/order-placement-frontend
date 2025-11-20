@@ -1,0 +1,426 @@
+project:
+  name: "管理系统前端"
+  basePath: "src"
+  # 新的功能配置格式：GET和LIST是必须的，其他功能可选
+  # create: 新增功能，相当于POST
+  # update: 修改功能，相当于PUT  
+  # delete: 删除功能，相当于DELETE
+  # search2: 查询页面带所有字段作为查询条件
+  # search(字段1 字段2): 查询页面带指定字段作为查询条件
+  apis: ["create", "update", "delete", "search2"]
+
+modules:
+  - name: "ProductCategory"
+    comment: "商品分类"
+    menu:
+      topKey: "products"
+      topLabel: "商品"
+      groupLabel: "商品分类管理"
+      itemLabel: "商品分类列表"
+      role: "ADMIN"
+    # 模块级别的功能配置，会覆盖项目级别的配置
+    # 使用search2: 查询页面显示所有字段作为查询条件
+    # 使用table(字段1 字段2): 列表页面显示指定字段
+    apis: ["search2", "table(name price stock status)"]
+    fields:
+      - name: "id"
+        type: "Long"
+        comment: "主键ID"
+        primaryKey: true
+        autoIncrement: true
+      - name: "name"
+        type: "String"
+        comment: "分类名称"
+        length: 100
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "price"
+        type: "BigDecimal"
+        comment: "商品价格"
+        precision: 10
+        scale: 2
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["GE", "LE"]
+      - name: "stock"
+        type: "Integer"
+        comment: "库存数量"
+        defaultValue: 0
+        query:
+          enabled: true
+          queryTypes: ["GT", "LT"]
+      - name: "description"
+        type: "String"
+        comment: "分类描述"
+        length: 500
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "status"
+        type: "Integer"
+        comment: "分类状态"
+        defaultValue: 1
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "category"
+        type: "String"
+        comment: "分类名称"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "imageUrl"
+        type: "String"
+        comment: "分类图片"
+        length: 200
+      - name: "createdTime"
+        type: "LocalDateTime"
+        comment: "创建时间"
+      - name: "updatedTime"
+        type: "LocalDateTime"
+        comment: "更新时间"
+      - name: "deleted"
+        type: "Integer"
+        comment: "删除标记"
+        defaultValue: 0
+        logicDelete: true
+
+  - name: "ProductManagement"
+    comment: "商品管理"
+    menu:
+      topKey: "products"
+      topLabel: "商品"
+      groupLabel: "商品管理"
+      itemLabel: "商品列表"
+      role: "ADMIN"
+    # 使用search(字段1 字段2): 查询页面显示指定字段作为查询条件
+    # 使用table: 列表页面显示全部字段
+    apis: ["search(name price stock description status category imageUrl createdTime updatedTime)", "table"]
+    fields:
+      - name: "id"
+        type: "Long"
+        comment: "主键ID"
+        primaryKey: true
+        autoIncrement: true
+      - name: "name"
+        type: "String"
+        comment: "商品名称"
+        length: 100
+        nullable: false
+      - name: "price"
+        type: "BigDecimal"
+        comment: "商品价格"
+        precision: 10
+        scale: 2
+        nullable: false
+      - name: "categoryId"
+        type: "Long"
+        comment: "分类ID"
+        nullable: false
+      - name: "description"
+        type: "String"
+        comment: "商品描述"
+        length: 500
+      - name: "status"
+        type: "Integer"
+        comment: "商品状态"
+        defaultValue: 1
+      - name: "createdTime"
+        type: "LocalDateTime"
+        comment: "创建时间"
+      - name: "updatedTime"
+        type: "LocalDateTime"
+        comment: "更新时间"
+      - name: "deleted"
+        type: "Integer"
+        comment: "删除标记"
+        defaultValue: 0
+        logicDelete: true
+
+  - name: "UserAddress"
+    comment: "用户地址"
+    # usePlural: true #决定是否需要复数的api路径
+    menu:
+      topKey: "user"
+      topLabel: "用户"
+      groupLabel: "用户地址管理"
+      itemLabel: "用户地址列表"
+      role: "ADMIN"
+    # 使用search(字段)语法：查询页面只显示指定字段作为查询条件
+    # 使用table(字段)语法：表格页面显示指定字段
+    apis: ["create", "update", "delete", "search(receiverName receiverPhone provinceCity)", "table(userId receiverName receiverPhone province city detailAddress isDefault)"]
+    fields:
+      - name: "id"
+        type: "Long"
+        comment: "主键ID"
+        primaryKey: true
+        autoIncrement: true
+      - name: "userId"
+        type: "Long"
+        comment: "用户ID"
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "receiverName"
+        type: "String"
+        comment: "收货人姓名"
+        length: 50
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "receiverPhone"
+        type: "String"
+        comment: "收货人电话"
+        length: 20
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "province"
+        type: "String"
+        comment: "省份"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "city"
+        type: "String"
+        comment: "城市"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "district"
+        type: "String"
+        comment: "区县"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "detailAddress"
+        type: "String"
+        comment: "详细地址"
+        length: 200
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "isDefault"
+        type: "Integer"
+        comment: "是否默认"
+        defaultValue: 0
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "createdTime"
+        type: "LocalDateTime"
+        comment: "创建时间"
+      - name: "updatedTime"
+        type: "LocalDateTime"
+        comment: "更新时间"
+      - name: "deleted"
+        type: "Integer"
+        comment: "删除标记"
+        defaultValue: 0
+        logicDelete: true
+
+  # 新增文章模块（用户和管理员都可访问）
+  - name: "Article"
+    comment: "文章管理"
+    menu:
+      topKey: "content"
+      topLabel: "内容管理"
+      groupLabel: "文章管理"
+      itemLabel: "文章列表"
+      role: "ALL"
+    apis: ["create", "update", "delete", "search(title author status)", "table"]
+    fields:
+      - name: "id"
+        type: "Long"
+        comment: "文章ID"
+        primaryKey: true
+        autoIncrement: true
+      - name: "title"
+        type: "String"
+        comment: "文章标题"
+        length: 200
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "content"
+        type: "String"
+        comment: "文章内容"
+        length: 5000
+      - name: "author"
+        type: "String"
+        comment: "作者"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "category"
+        type: "String"
+        comment: "分类"
+        length: 50
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "status"
+        type: "Integer"
+        comment: "状态"
+        defaultValue: 0
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "viewCount"
+        type: "Integer"
+        comment: "浏览数"
+        defaultValue: 0
+      - name: "likeCount"
+        type: "Integer"
+        comment: "点赞数"
+        defaultValue: 0
+      - name: "publishTime"
+        type: "LocalDateTime"
+        comment: "发布时间"
+      - name: "createdTime"
+        type: "LocalDateTime"
+        comment: "创建时间"
+      - name: "updatedTime"
+        type: "LocalDateTime"
+        comment: "更新时间"
+      - name: "deleted"
+        type: "Integer"
+        comment: "删除标记"
+        defaultValue: 0
+        logicDelete: true
+
+  # 新增评论模块（用户和管理员都可访问）
+  - name: "Comment"
+    comment: "评论管理"
+    menu:
+      topKey: "content"
+      topLabel: "内容管理"
+      groupLabel: "评论管理"
+      itemLabel: "评论列表"
+      role: "ALL"
+    apis: ["create", "update", "delete", "search(content userId)", "table"]
+    fields:
+      - name: "id"
+        type: "Long"
+        comment: "评论ID"
+        primaryKey: true
+        autoIncrement: true
+      - name: "userId"
+        type: "Long"
+        comment: "用户ID"
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "articleId"
+        type: "Long"
+        comment: "文章ID"
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "content"
+        type: "String"
+        comment: "评论内容"
+        length: 1000
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "parentId"
+        type: "Long"
+        comment: "父评论ID"
+        defaultValue: 0
+      - name: "likeCount"
+        type: "Integer"
+        comment: "点赞数"
+        defaultValue: 0
+      - name: "status"
+        type: "Integer"
+        comment: "状态"
+        defaultValue: 1
+        query:
+          enabled: true
+          queryTypes: ["EQ"]
+      - name: "createdTime"
+        type: "LocalDateTime"
+        comment: "创建时间"
+      - name: "updatedTime"
+        type: "LocalDateTime"
+        comment: "更新时间"
+      - name: "deleted"
+        type: "Integer"
+        comment: "删除标记"
+        defaultValue: 0
+        logicDelete: true
+
+  # 新增系统配置模块（仅管理员访问）
+  - name: "SystemConfig"
+    comment: "系统配置"
+    menu:
+      topKey: "system"
+      topLabel: "系统管理"
+      groupLabel: "系统配置"
+      itemLabel: "配置列表"
+      role: "ADMIN"
+    apis: ["create", "update", "delete", "search(configName configKey)", "table(configName configKey configValue configType)"]
+    fields:
+      - name: "id"
+        type: "Long"
+        comment: "配置ID"
+        primaryKey: true
+        autoIncrement: true
+      - name: "configName"
+        type: "String"
+        comment: "配置名称"
+        length: 100
+        nullable: false
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "configKey"
+        type: "String"
+        comment: "配置键名"
+        length: 100
+        nullable: false
+        unique: true
+        query:
+          enabled: true
+          queryTypes: ["LIKE"]
+      - name: "configValue"
+        type: "String"
+        comment: "配置键值"
+        length: 500
+        nullable: false
+      - name: "configType"
+        type: "Integer"
+        comment: "配置类型"
+        defaultValue: 0
+      - name: "remark"
+        type: "String"
+        comment: "备注"
+        length: 500
+      - name: "createdTime"
+        type: "LocalDateTime"
+        comment: "创建时间"
+      - name: "updatedTime"
+        type: "LocalDateTime"
+        comment: "更新时间"
+      - name: "deleted"
+        type: "Integer"
+        comment: "删除标记"
+        defaultValue: 0
+        logicDelete: true

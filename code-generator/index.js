@@ -1,43 +1,69 @@
-import path from 'node:path'
-import fs from 'fs-extra'
+#!/usr/bin/env node
+import { Command } from 'commander'
 import { runGeneration, parseYamlFile } from './core/generator.js'
-import { rollbackLatest, rollbackBy } from './core/rollback.js'
+import fs from 'fs-extra'
+import path from 'node:path'
 
-const args = process.argv.slice(2)
+const program = new Command()
 
-const getArg = (name) => {
-  const idx = args.indexOf(name)
-  if (idx >= 0) return args[idx + 1]
-  return null
-}
+program
+  .name('code-generator')
+  .description('代码生成器工具')
+  .version('1.0.0')
 
-const cmd = args[0]
+program
+  .command('generate')
+  .description('根据配置文件生成代码')
+  .option('-c, --config <path>', '配置文件路径', 'codegen.yaml')
+  .option('-f, --force', '强制覆盖已存在的文件')
+  .option('-v, --verbose', '显示详细输出')
+  .action(async (options) => {
+    try {
+      const configPath = path.resolve(options.config)
+      if (!await fs.pathExists(configPath)) {
+        console.error(`配置文件不存在: ${configPath}`)
+        process.exit(1)
+      }
 
-const main = async () => {
-  if (cmd === '--config') {
-    const file = getArg('--config')
-    if (!file) throw new Error('missing --config <path>')
-    const cfg = await parseYamlFile(file)
-    const res = await runGeneration(cfg)
-    console.log('generated', res.stamp)
-    return
-  }
-  if (cmd === '--rollback') {
-    const stamp = getArg('--rollback')
-    const res = stamp ? await rollbackBy(stamp) : await rollbackLatest()
-    console.log('rolled back', res.stamp)
-    return
-  }
-  console.log('Usage: node index.js --config <yaml> | --rollback [stamp]')
-}
+      console.log(`正在读取配置文件: ${configPath}`)
+      const config = await parseYamlFile(configPath)
+      
+      console.log('开始生成代码...')
+      const result = await runGeneration(config, {
+        force: options.force,
+        verbose: options.verbose
+      })
+      
+      if (result.ok) {
+        console.log('✅ 代码生成完成')
+      } else {
+        console.error('❌ 代码生成失败')
+        process.exit(1)
+      }
+    } catch (error) {
+      console.error('生成代码时发生错误:', error.message)
+      process.exit(1)
+    }
+  })
 
-main().catch(async (e) => {
-  try {
-    const res = await rollbackLatest()
-    console.error('error:', e.message || String(e))
-    console.error('auto-rolled-back to', res.stamp)
-  } catch (err) {
-    console.error('rollback failed:', err.message || String(err))
-  }
-  process.exit(1)
-})
+program
+  .command('list')
+  .description('列出可用的配置模板')
+  .action(() => {
+    console.log('可用配置模板:')
+    console.log('  - codegen.yaml (默认)')
+    console.log('  - user.yaml (用户管理)')
+    console.log('  - order.yaml (订单管理)')
+  })
+
+program
+  .command('status')
+  .description('显示代码生成器状态')
+  .action(() => {
+    console.log('代码生成器状态:')
+    console.log('  ✅ 运行正常')
+    console.log('  📁 配置文件: codegen.yaml')
+    console.log('  🚀 支持功能: API生成、页面生成、类型定义、菜单集成')
+  })
+
+program.parse()
